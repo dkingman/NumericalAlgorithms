@@ -2,10 +2,17 @@
 """
 Created on Tue Jan 29 23:14:17 2013
 
-@author: David Kingman
+@author: David Kingman, Valentino Constantinou
 """
+
+#NOTE: There are currently some errors in the code (linear algebra). 
+
 import math
 import numpy as np
+from numarray import *
+from numarray import dot
+import copy
+from numarray import argmax
 
 
 def eulersConstant():
@@ -138,69 +145,116 @@ def bisection_2(ap=1e-6, max_steps=50):
 
 bisection_2()
 
-
-def newton(f, f_prime, x, delta=1e-3, ap=1e-6, max_steps=25):
-    fx = f(x)
-    for n in range(1, max_steps):
-        fp = f_prime(x)
-        if abs(fp) < delta:
-            print 'Small derivative'
-            return [n, x, fx]
-        d = fx / fp
-        x = x - d
-        #print [n,x,fx]
+def newton(f,f_prime,x,tolerance,precision,display,steps):
+    fx=f(x)
+    for i in range(steps):
+        fp=f_prime(x)
+        if abs(fp) < precision:
+            display=0
+            print 'small derivative'
+            #return [steps,x,fx]
+            break
+        d=fx/fp
+        x=x-d
         fx = f(x)
-        if abs(d) < ap:
-            print 'Convergence'
-            return [n, x, fx]
+        if display:
+                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
+                #print [steps,x,fx]
+        if abs(d) < tolerance:
+            print 'convergence'
+            #return [steps, x, fx]
 
 
-def func_3(x):
-    return 2.0 * x * (1 - x ** 2 + x) * math.log(x) - x * x + 1
+def function(x):
+    return (tan(x))-x
 
+def functionprime(x):
+    return (tan(x)**2)
 
-def func_3_prime(x):
-    return -2.0 * (-1 + x) * (1 + x + (1 + 3 * x) * math.log(x))
+#def functionprimeprime(x):
+    #return 2*(tan(x))*((sec(x)**2))
 
+print newton(function,functionprime,7,1*e**-6,1*e**-6,1,25)
 
-print newton(func_3, func_3_prime, 0.9)
+#None. No root. This answer makes sense when you look at the plot.
 
+def function2(x):
+    return (e**(x))-((x+9)**(0.5))
 
-def newton_8(f, f_prime, x, delta=1e-6, ap=1e-6, max_steps=8):
-    fx = f(x)
-    for n in range(1, max_steps):
-        fp = f_prime(x)
-        if abs(fp) < delta:
-            print 'Small derivative'
-            return [n, x, fx]
-        d = fx / fp
-        x = x - d
-        print [n, x, fx]
+def function2prime(x):
+    return (e**(x))-(1/(2*(x+9)**(0.5))) #may need to rewrite this function to minimize error.
+
+#def function2primeprime(x):
+    #return (e**(x)) - 1/(4*((x+9)**(3/2))) #may need to rewrite this function to minimize error.
+
+print newton(function2,function2prime,2,1*e**-6,1*e**-6,1,25)
+
+def newtonmod(f,f_prime,x,tolerance,precision,display,steps):
+    fx=f(x)
+    for i in range(steps):
+        fp=f_prime(x)
+        if abs(fp) < precision:
+            display=0
+            print 'small derivative'
+            #return [steps,x,fx]
+            break
+        d=fx/fp
+        x=x-d
+        if abs(f(x-d)) >= abs(f(x)):
+            d=0.5*d
+        else:
+            d=d
         fx = f(x)
-        if abs(d) < ap:
-            print 'Convergence'
-            return [n, x, fx]
+        if display:
+                print "n = %i, x = %f, and xn=%f"% (i + 1, d, fx)
+        #print [steps,x,fx]
+        if abs(d) < tolerance:
+            print 'convergence'
+            #return [steps, x, fx]
 
 
-def func_4(x):
-    return x ** 3 - math.sin(x) + 7
+
+def testfn(x):
+    return sin(x)
+
+def testfnprime(x):
+    return cos(x)
 
 
-def func_4_prime(x):
-    return x ** 2 - math.cos(x)
+print newton(testfn,testfnprime,1.2,1*e**-6,1*e**-3,1,25)
+print newtonmod(testfn,testfnprime,1.2,1*e**-6,1*e**-3,1,25)
+
+#yay it works.
+
+def newtonaccel(f,f_prime,x,tolerance,precision,display,steps):
+    fx=f(x)
+    for i in range(steps):
+        fp=f_prime(x)
+        if abs(fp) < precision:
+            display=0
+            print 'small derivative'
+            #return [steps,x,fx]
+            break
+        d=(fx/fp)
+        x=x-(2*d)
+        if abs(f(x-d)) >= abs(f(x)):
+            d=0.5*d
+        else:
+            d=d
+        fx = f(x)
+        if display:
+                print "n = %i, x = %f, and xn=%f"% (i + 1, d, fx)
+        #print [steps,x,fx]
+        if abs(d) < tolerance:
+            print 'convergence'
+            #return [steps, x, fx]
 
 
-def func_5(x):
-    return math.sin(x) - 1 + x
+def doublerootfn(x):
+    return (e**x)*((x-1)**2)
 
-
-def func_5_prime(x):
-    return math.cos(x) + 1
-
-
-newton_8(func_4, func_4_prime, .5)
-newton_8(func_5, func_5_prime, .5)
-
+def doublerootfnprime(x):
+    return (e**x)*((x**2)-1)
 
 def secant(f, a, b, ap=1e-6, max_steps=25):
     fa = f(a)
@@ -233,49 +287,20 @@ def secant(f, a, b, ap=1e-6, max_steps=25):
         return [n, a, fa]
 
 
-def func_6(x):
-    return x * (x * x - 3.0) + 1
-
-
-def func_6_prime(x):
-    return 3.0 * x * x - 3
-
-
-def func_7(x):
-    return x ** 3 - 2 * math.cos(math.pi / 2 - x)
-
-
-def func_7_prime(x):
-    return -1.0 + x * x / 2 * (7 - x * x / 12)
-
-
-def newton_2(f, f_prime, x, delta=1e-3, ap=1e-6, max_steps=25):
-    fx = f(x)
-    for n in range(1, max_steps):
-        print 'n=', n, ' x=', x, ' fx=', fx
-        fp = f_prime(x)
-        if abs(fp) < delta:
-            print 'Small derivative'
-            return [n, x, fx]
-        d = fx / fp
-        x = x - d
-        fx = f(x)
-        if abs(d) < ap:
-            print 'Convergence'
-            return [n, x, fx]
-
-
-a = newton_2(func_6, func_6_prime, 2.0)[1]
-secant(func_6, a, 2.0)
-a = newton_2(func_7, func_7_prime, 0.5)[1]
-secant(func_7, a, 2.)
-
-
-def secant_2(a, b, ap=1e-6, max_steps=25):
-    for k in range(1, 11):
-        f = lambda x: 2 * math.e ** (-k) * x + 1 - 3 * math.e ** (-k * x)
-        fa = f(a)
-        fb = f(b)
+#secant method
+def secant(f, a, b, precision, steps):
+    fa = f(a)
+    fb = f(b)
+    if abs(fa) > abs(fb):
+        temp = a
+        a = b
+        b = temp
+        temp = fa
+        fa = fb
+        fb = temp
+        print [0,a,fa]
+        print [1,b,fb] #Galloway said [0,b,fb], book said
+    for n in range(2, steps):
         if abs(fa) > abs(fb):
             temp = a
             a = b
@@ -283,48 +308,45 @@ def secant_2(a, b, ap=1e-6, max_steps=25):
             temp = fa
             fa = fb
             fb = temp
-        for n in range(2, max_steps):
-            #print 'n=',n,' a=',a,' fa=',fa
-            if abs(fa) > abs(fb):
-                temp = a
-                a = b
-                b = temp
-                temp = fa
-                fa = fb
-                fb = temp
-            d = (b - a) / (fb - fa)
-            b = a
-            fb = fa
-            d = d * fa
-            if abs(d) < ap:
-                print 'Convergence'
-                print 'k=', k, ' n=', n, ' a=', a, ' fa=', fa
-                break
-            a = a - d
-            fa = f(a)
-            print 'k=', k, ' n=', n, ' a=', a, ' fa=', fa
-            break
-
-
-secant_2(0, 1)
-
-
-def newton(f, f_prime, x, delta=1e-6, ap=1e-6, max_steps=25):
-    fx = f(x)
-    for n in range(1, max_steps):
-        fp = f_prime(x)
-        #print fx, fp
-        if abs(fp) < delta:
-            print 'Small derivative'
-            return [n, x, fx]
-        d = fx / fp
-        x = x - d
-        #print [n,x,fx]
-        fx = f(x)
-        if abs(d) < ap:
+        d = (b - a) / (fb - fa)
+        b = a
+        fb = fa
+        d = d * fa
+        if abs(d) < precision:
             print 'Convergence'
-            return [n, x, fx]
+            #print "" #so that when testing multiple functions the output is easier to read.
+            return [n, a, fa]
+            break
+        #else: #Do not need this.
+            #print 'Does Not Converge'
+            #print "" #so that when testing multiple functions the output is easier to read.
+            #break
+        a = a - d
+        fa = f(a)
+        print 'n=', n, ' a=', a, ' fa=', fa
+        #return [n, a, fa] #never return at the end of a loop
 
+
+def secantfn(x):
+    return (e**x)-3*(x**2)
+
+print secant(secantfn,-0.5,2,1*e**-10,25)
+#found root to be -0.45896257524. There are other roots at 0.91 and 3.733
+
+def wilkinson(x):
+    #n=20
+    #for i in range(n):
+        #return(sum(x-n))
+        return (x-1)*(x-2)*(x-3)*(x-4)*(x-5)*(x-6)*(x-7)*(x-8)*(x-9)*(x-10)*(x-11)*(x-12)*(x-13)*(x-14)*(x-15)*(x-16)*(x-17)*(x-18)*(x-19)*(x-20)
+
+print secant(wilkinson,20,21,1*e**-10,100)
+#here, the sequence converges to 20
+
+def wilkinsonmod(x):
+    return ((x-1)*(x-2)*(x-3)*(x-4)*(x-5)*(x-6)*(x-7)*(x-8)*(x-9)*(x-10)*(x-11)*(x-12)*(x-13)*(x-14)*(x-15)*(x-16)*(x-17)*(x-18)*(x-19)*(x-20)) - ((10**-8)*(x**19))
+
+print secant(wilkinsonmod,20,21,1*e**-10,100)
+#here, the sequence does 20.240274, between [20,21]. 
 
 f1 = lambda x: (1. / math.e ** (x * x)) - math.cos(x) - 1.
 f1_p = lambda x: math.sin(x) - 2. * x * (1. / math.e ** (x * x))
@@ -512,6 +534,370 @@ for x in xi_2:
     real = func_2(x)
     print "{: 1.12f}".format(real - approx)
 
+
+
+
+def createA(n): #function to create matrix A
+    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+             if j>=1:
+                 A[1,j]=A[j,1]=n**(-1)
+             else:
+                 A[i,j]=A[i-1,j]+A[i,j-1]
+    return A
+
+A = createA(25)
+#print A
+
+def det(a):
+    n = len(a)
+    for k in range(0,n-1):
+        for i in range(k+1,n):
+            if a[i,k] != 0.0:
+                lam = a [i,k]/a[k,k]
+                a[i,k+1:n] = a[i,k+1:n] - lam*a[k,k+1:n]
+                a[i,k] = lam
+    det = product(diagonal(a)) #a triangular matrix det is the product of the diagonal
+    return det #toggle these two return functions to give either the determinant or triangularly reduced A.
+    #return a
+
+detA = det(A)
+print detA
+
+#Here we can clearly see that the determinant is 0 or undefined. Looking at the reduced A,
+#we see that there are zeros in the diagonal and entire blocks of zeros in the matrix... This won't be easily solveable.
+
+B = createA(6)
+print B
+
+#same happens on smaller scale. 
+
+def createA(n): #function to create matrix A
+    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+             if j>=i:
+                 A[i,j]=1
+             else:
+                 A[i,j]=-1
+    return A
+
+A = createA(25)
+print A
+
+def det(a):
+    n = len(a)
+    for k in range(0,n-1):
+        for i in range(k+1,n):
+            if a[i,k] != 0.0:
+                lam = a [i,k]/a[k,k]
+                a[i,k+1:n] = a[i,k+1:n] - lam*a[k,k+1:n]
+                a[i,k] = lam
+    det = product(diagonal(a)) #a triangular matrix det is the product of the diagonal
+    return det #toggle these two return functions to give either the determinant or triangularly reduced A.
+    #return a
+
+detA = det(A)
+print detA
+
+#here we obtain a determinant of 1677216.
+
+def createA(n): #function to create matrix A
+    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+             A[i,j]= abs(i-j)
+    return A
+
+A = createA(25)
+#print A
+
+def det(a):
+    n = len(a)
+    for k in range(0,n-1):
+        for i in range(k+1,n):
+            if a[i,k] != 0.0:
+                lam = a [i,k]/a[k,k]
+                a[i,k+1:n] = a[i,k+1:n] - lam*a[k,k+1:n]
+                a[i,k] = lam
+    det = product(diagonal(a))
+    #return A #toggle these two return functions to give either the determinant or triangularly reduced A.
+    return det
+
+detA = det(A)
+print detA
+
+#Here we can clearly see that the determinant is 0 or undefined. Looking at the reduced A,
+#we see that there are zeros in the diagonal.
+
+def createA(n): #function to create matrix A
+    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+             A[i,j]= -1+2*argmax([i,j])
+    return A
+
+A = createA(30)
+print A
+
+def createB(n): #function to create matrix B
+    B = np.empty((n,1), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+             B[i] = 1
+    return B
+
+B = createB(30)
+print B
+
+def gaussA(n, a):
+    s = [0 for i in range(n)]
+    x = [0 for i in range(n)]
+    l = [i for i in range(n)]
+    for i in range(0, n):
+        l[i] = i
+        smax = 0
+        for j in range(0, n):
+            #print abs(a[i,j])
+            smax = max(smax, abs(a[i, j]))
+        s[i] = smax
+        #print s
+        #print
+    for k in range(0, n - 1):
+        rmax = 0
+        for i in range(k, n):
+            #print k/s[l[i]]
+            r = abs(a[l[i], l[k]] / s[l[i]])
+            #print r>rmax
+            #print 'j=',j,' i=',i, 'r=',r,'rmax=',rmax
+            if r > rmax:
+                rmax = r
+                j = i
+
+        #print k
+        temp = l[k]
+        l[k] = l[j]
+        l[j] = temp
+        #print l
+        #print '\n'
+        for i in range(n - 1, k, -1):
+            xmult = a[l[i], k] / a[l[k], k]
+            #print xmult
+            a[l[i], k] = xmult
+            for j in range(k + 1, n):
+                a[l[i], j] = a[l[i], j] - xmult * a[l[k], j]
+    return a
+
+def gaussl(n, a):
+    s = [0 for i in range(n)]
+    x = [0 for i in range(n)]
+    l = [i for i in range(n)]
+    for i in range(0, n):
+        l[i] = i
+        smax = 0
+        for j in range(0, n):
+            #print abs(a[i,j])
+            smax = max(smax, abs(a[i, j]))
+        s[i] = smax
+        #print s
+        #print
+    for k in range(0, n - 1):
+        rmax = 0
+        for i in range(k, n):
+            #print k/s[l[i]]
+            r = abs(a[l[i], l[k]] / s[l[i]])
+            #print r>rmax
+            #print 'j=',j,' i=',i, 'r=',r,'rmax=',rmax
+            if r > rmax:
+                rmax = r
+                j = i
+
+        #print k
+        temp = l[k]
+        l[k] = l[j]
+        l[j] = temp
+        #print l
+        #print '\n'
+        for i in range(n - 1, k, -1):
+            xmult = a[l[i], k] / a[l[k], k]
+            #print xmult
+            a[l[i], k] = xmult
+            for j in range(k + 1, n):
+                a[l[i], j] = a[l[i], j] - xmult * a[l[k], j]
+    return l
+
+def solve(n, a, l, b): #takes a matrix A, b, l (the scale factors), of size n and solves.
+    x = [0 for i in range(n)]
+    for k in range(0, n - 1):
+        for i in range(k + 1, n):
+            b[l[i]] = b[l[i]] - a[l[i], k] * b[l[k]]
+            #print n,x
+    x[n - 1] = b[l[n - 1]] / a[l[n - 1], n - 1]
+    for i in range(n - 1, -1, -1):
+        s = b[l[i]]
+        for j in range(i + 1, n):
+            s = s - a[l[i], j] * x[j]
+        x[i] = s / a[l[i], i]
+    return x
+
+G = gaussA(30,A)
+L = gaussl(30,A)
+X = np.asmatrix(solve(30,A,L,B), dtype=np.int8)
+print X
+
+#and we obtain an end result.
+
+
+def createHilbert(n): #define a function for creating Hilbert matrices.
+    H = np.empty((n, n), order='F') #declare an empty array of nxn dimension.
+    for j in range(n):
+        for i in range(n):
+            H[i,j] = 1. / (i + j + 1) #formula for constructing matrix values.
+    return H #return the matrix A
+
+H3 = createHilbert(3) #create 3x3 Hilbert matrix
+print H3
+
+H8 = createHilbert(8) #create 8x8 Hilbert matrix
+#print H8
+
+H13 = createHilbert(13) #create 13x13 Hilbert matrix
+#print H13
+
+def createB(n): #function to create matrix b
+    H = np.empty((n, n), order='F') #declare an empty array of nxn dimension.
+    for j in range(n):
+        for i in range(n):
+            H[i,j] = 1. / (i + j + 1) #formula for constructing matrix values.
+    B = np.empty((n,1), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        B[i]=0
+        for j in range(n):
+            B[i]=B[i]+H[i,j] #formula for constructing matrix values.
+    return B
+
+B3 = createB(3)
+print B3 #create 3x1 matrix of B's using the formula.
+
+B8 = createB(8)
+#print B8 #create 8x1 matrix of B's using the formula.
+
+B13 = createB(13)
+#print B13 #create 13x1 matrix of B's using the formula.
+
+def gaussA(n, a):
+    s = [0 for i in range(n)]
+    x = [0 for i in range(n)]
+    l = [i for i in range(n)]
+    for i in range(0, n):
+        l[i] = i
+        smax = 0
+        for j in range(0, n):
+            #print abs(a[i,j])
+            smax = max(smax, abs(a[i, j]))
+        s[i] = smax
+        #print s
+        #print
+    for k in range(0, n - 1):
+        rmax = 0
+        for i in range(k, n):
+            #print k/s[l[i]]
+            r = abs(a[l[i], l[k]] / s[l[i]])
+            #print r>rmax
+            #print 'j=',j,' i=',i, 'r=',r,'rmax=',rmax
+            if r > rmax:
+                rmax = r
+                j = i
+
+        #print k
+        temp = l[k]
+        l[k] = l[j]
+        l[j] = temp
+        #print l
+        #print '\n'
+        for i in range(n - 1, k, -1):
+            xmult = a[l[i], k] / a[l[k], k]
+            #print xmult
+            a[l[i], k] = xmult
+            for j in range(k + 1, n):
+                a[l[i], j] = a[l[i], j] - xmult * a[l[k], j]
+    return a
+
+def gaussl(n, a):
+    s = [0 for i in range(n)]
+    x = [0 for i in range(n)]
+    l = [i for i in range(n)]
+    for i in range(0, n):
+        l[i] = i
+        smax = 0
+        for j in range(0, n):
+            #print abs(a[i,j])
+            smax = max(smax, abs(a[i, j]))
+        s[i] = smax
+        #print s
+        #print
+    for k in range(0, n - 1):
+        rmax = 0
+        for i in range(k, n):
+            #print k/s[l[i]]
+            r = abs(a[l[i], l[k]] / s[l[i]])
+            #print r>rmax
+            #print 'j=',j,' i=',i, 'r=',r,'rmax=',rmax
+            if r > rmax:
+                rmax = r
+                j = i
+
+        #print k
+        temp = l[k]
+        l[k] = l[j]
+        l[j] = temp
+        #print l
+        #print '\n'
+        for i in range(n - 1, k, -1):
+            xmult = a[l[i], k] / a[l[k], k]
+            #print xmult
+            a[l[i], k] = xmult
+            for j in range(k + 1, n):
+                a[l[i], j] = a[l[i], j] - xmult * a[l[k], j]
+    return l
+
+G3 = gaussA(3, H3) #Gaussian elimination with scaled pivoting is carried out on our Hilbert matrices.
+#print G3
+
+L3 = gaussl(3,H3)
+L3 = np.array(L3)
+
+G8 = gaussA(8, H8) #Gaussian elimination with scaled pivoting is carried out on our Hilbert matrices.
+#print G8
+G13 = gaussA(13, H13) #Gaussian elimination with scaled pivoting is carried out on our Hilbert matrices.
+#print G13
+
+def solve(n, a, l, b): #takes a matrix A, b, l (the scale factors), of size n and solves.
+    x = [0 for i in range(n)]
+    for k in range(0, n - 1):
+        for i in range(k + 1, n):
+            b[l[i]] = b[l[i]] - a[l[i], k] * b[l[k]]
+            #print n,x
+    x[n-1] = b[l[n - 1]] / a[l[n - 1], n - 1]
+    for i in range(n - 1, -1, -1):
+        s = b[l[i]]
+        for j in range(i + 1, n):
+            s = s - a[l[i], j] * x[j]
+            x[i] = s / a[l[i], i]
+    return x
+
+#Now we need to solve for X3, X8, and X13 respectively.
+
+#X3 = solve(3,H3,L3,B3)
+#print X3
+X3 = np.asmatrix(solve(3,H3,L3,B3), dtype=np.uint8) #need to do this to display properly.
+print X3
+
+#ones all around.
+
+#The computer is highly prone to error because the values it is computing are very small... i.e. the differences are tiny.
+#The error compounds as the size of the Hilbert matrix increases.
 
 def deriv(f, x, h, n):
     d = np.matrix(np.zeros((n, n)))
