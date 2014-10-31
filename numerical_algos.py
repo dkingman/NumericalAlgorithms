@@ -917,6 +917,26 @@ print deriv(my_arctan, 1., 1., 5)
 print deriv(my_abs, 0, 1., 5)
 
 
+def deriv(f,x):
+    n = 5
+    h = 1.
+    d = []
+    for i in range(n+1):
+        d.append([(f(x + h) - f(x - h))/(2. * h)])
+        for j in range(1,i + 1):
+            d[i].append(d[i][j - 1] + (d[i][j - 1] - d[i - 1][j - 1])/(4.0 ** j - 1.0))
+        h /= 2.
+    return d[n][n]
+
+
+my_cos = lambda x: math.cos(x)
+my_arctan = lambda x: math.atan(x)
+my_abs = lambda x: abs(x)
+print deriv(my_cos, 0)
+print deriv(my_arctan, 1.)
+print deriv(my_abs, 0)
+
+
 def naive_gauss(a, b):
     n = a.shape[0] - 1
     x = [0 for i in range(n)]
