@@ -921,6 +921,17 @@ print a
 #for i in range(n-1,0): #needs to be for i in n-1 to 0 step -1.
  #   temp=(temp)*(t-x[i])+a[i]
   #  Eval = temp
+  
+  
+from math import cos
+from math import pi
+
+
+def chebyshevnodes(a,b,n):
+    for i in range(0,n):
+        x[i]=(0.5*(a+b))+(0.5*(a+b)*cos((((2*[i]+1)/((2*n)+2))*pi))) #alternatively cos((((2[i]-1)/(2*n))*pi)
+
+print chebyshevnodes(-5,5,5)
 
 def deriv(f, x, h, n):
     d = np.matrix(np.zeros((n, n)))
