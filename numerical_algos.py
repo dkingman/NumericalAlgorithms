@@ -899,6 +899,29 @@ print X3
 #The computer is highly prone to error because the values it is computing are very small... i.e. the differences are tiny.
 #The error compounds as the size of the Hilbert matrix increases.
 
+from numpy import array
+
+x = array([1,2,3,-4,5]) #x-values
+y = array([2,48,272,1182,2262]) #y-values
+a = [0] * 5 #need array to store values that has a length of 5. The zeros will be appended in the loop.
+n=5 #number of coefficients. Must match length of a.
+
+def coef(n,x,y,a):
+    for i in range(0,n):
+            a[i]=y[i]
+    for j in range(1,n):
+        for i in range(n,j-1):
+            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j])
+
+print coef(5,a,x,y)
+print a
+
+#def eval(n,x,y,t): #single real value. Function outputs value of the interpolating polynomial at t.
+#temp = a[n]
+#for i in range(n-1,0): #needs to be for i in n-1 to 0 step -1.
+ #   temp=(temp)*(t-x[i])+a[i]
+  #  Eval = temp
+
 def deriv(f, x, h, n):
     d = np.matrix(np.zeros((n, n)))
     for i in range(0, n):
