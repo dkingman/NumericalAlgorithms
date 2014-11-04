@@ -951,26 +951,195 @@ print deriv(my_arctan, 1., 1., 5)
 print deriv(my_abs, 0, 1., 5)
 
 
+def gen_coef(xlist,ylist):    #this function generates the "divided difference" coefficients (ai's)
+    alist = []    #creating a list to store the coefficients
+    n = len(xlist)    #setting the step number
+    for i in range(n):    #starting with y values
+        alist.append(ylist[i])
+    for j in range (1,n):
+        for i in reversed(range(j,n)):
+            alist[i] = ((alist[i] - alist[i-1])/(xlist[i]-xlist[i-j]))    #calculating the successive divided differences
+    return alist    #return the value
+
+
+def inter_eval(xlist,ylist,value):    #this evaluates values using the interpolating polynomial for a set of x's and y's
+    alist = gen_coef(xlist,ylist)    #uses gen_coef to generate coefficients
+    n = len(xlist)    #setting the step number
+    temp = alist[n-1]    #starting with the last coefficient for a horners algorithm style evalutation
+    for i in reversed(range(n-1)):    #evaluation
+        temp *= (value - xlist[i])
+        temp += alist[i]
+    return temp    #returning the value
+
+
+#problem 1 on 4.1
+
+
+xlist = [1., 2., 3., -4., 5.]
+ylist = [2., 48., 272., 1182., 2262.]
+
+print "\nFrom the table:\n"
+print "x",
+for i in range(len(xlist)): print "| {:<7}".format(xlist[i]),
+print
+print "y",
+for i in range(len(ylist)): print "| {:<7}".format(ylist[i]),
+print
+print "\nThe interpolating polynomial p(x) was determined.\n"
+print "{:^50}".format("p(-1) = " + str(inter_eval(xlist,ylist, -1.)))
+
+#problem 1 on 4.2
+
+def gen_table(func, start, stop, steps):
+    step_size = (stop - start)/steps
+    xlist = []
+    ylist = []
+    for i in range(steps + 1):
+        xlist.append(start + i * step_size)
+    for i in range(steps + 1):
+        ylist.append(f(xlist[i]))
+    return (xlist,ylist)
+    
+
+def gen_table2(func, steps):
+    xlist = []
+    ylist = []
+    for i in range(steps + 1):
+        xlist.append(5*math.cos((i*math.pi)/20.0))
+    for i in range(steps + 1):
+        ylist.append(f(xlist[i]))
+    return (xlist,ylist)
+    
+def gen_table3(func, steps):
+    xlist = []
+    ylist = []
+    for i in range(steps + 1):
+        xlist.append(5*math.cos(((2*i+1.0)*math.pi)/42.0))
+    for i in range(steps + 1):
+        ylist.append(f(xlist[i]))
+    return (xlist,ylist)
+
+
+f = lambda x: 1.0/(x**2.0 + 1.0)
+
+
+tables1 = gen_table(f, -5.0, 5.0, 20)
+
+tables2 = gen_table(f, -10., 10., 40)
+
+print """\nThe interpolating polynomial p(x) is created from a table that is
+made by evaluating f(x) at 21 nodes of x that are evenly spaced
+on the interval -5 <= x <= 5.
+
+We then compared the difference between f(x) and p(x) at 41 x that were
+evenly spaced on the interval -10.0 <= x <= 10.0.\n"""
+
+print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
+
+print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
+
+for i in tables2[0]:
+    print " {:< 6.1f}".format(i),
+    print " {:< 13e}".format(inter_eval(tables1[0],tables1[1],i)),
+    print " {:< 13e}".format(f(i)),
+    print " {:< 13e}".format((f(i) - inter_eval(tables1[0],tables1[1],i)))
+    
+tables1 = gen_table2(f, 20)
+
+print """\nThe preceding test was repeated, this time with the interpolating
+polynomial p(x) computed using chebyshev nodes for the x values,
+calculated with as follows:
+
+            xi = 5cos((i*pi)/20)\n"""
+
+print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
+
+for i in tables2[0]:
+    print " {:< 6.1f}".format(i),
+    print " {:< 13e}".format(inter_eval(tables1[0],tables1[1],i)),
+    print " {:< 13e}".format(f(i)),
+    print " {:< 13e}".format((f(i) - inter_eval(tables1[0],tables1[1],i)))
+
+tables1 = gen_table3(f, 20)
+
+print """\nThe preceding test was repeated, this time with the interpolating
+polynomial p(x) computed using chebyshev nodes for the x values,
+calculated with as follows:
+
+            xi = 5cos((2i+1)*pi)/42)\n"""
+
+print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
+
+for i in tables2[0]:
+    print " {:< 6.1f}".format(i),
+    print " {:< 13e}".format(inter_eval(tables1[0],tables1[1],i)),
+    print " {:< 13e}".format(f(i)),
+    print " {:< 13e}".format((f(i) - inter_eval(tables1[0],tables1[1],i)))    
+    
+#hmwk 4.2.10
+
+def test_cheby(num, start, stop):
+    xlist = []
+    for i in range(num + 1):
+        xlist.append(math.cos(((2.0*float(i)+1.0)*math.pi)/(2.0*float(num) + 2.0)))
+    output = []
+    for i in range(start,stop +1):
+        temp = (float(i)/10.0 - xlist[0])   #starting with the last coefficient for a horners algorithm style evalutation
+        for i in range(1,len(xlist)):    #evaluation
+            temp *= (float(i)/10.0 - xlist[i])
+        output.append(abs(temp)) 
+    return output
+    
+    
+start, stop = -10, 10    
+
+print "\nFor n = 3, we get the following results from testing error values of chebyshev nodes\n"
+
+cheby = test_cheby(3, start, stop)    
+
+cap = 2.**-3.
+
+print "\n {:^5.1}".format('x'), " {:^12}".format('p(x)'), " {:^12}".format('2^-n'), "  {:^12}".format('2^n-1 - p(x)')
+    
+for i in range(stop - start + 1):
+    print " {:< 5.1f}".format(i+start), " {:<12.6e}".format(cheby[i]), " {:<12.6e}".format(cap), " {:< 12.6e}".format(cap - cheby[i])
+ 
+print "\n\nFor n = 7, we get the following results from testing error values of chebyshev nodes\n"
+   
+cheby = test_cheby(7, start, stop)    
+
+cap = 2.**-7.
+
+print "\n {:^5.1}".format('x'), " {:^12}".format('p(x)'), " {:^12}".format('2^-n'), "  {:^12}".format('2^n-1 - p(x)')
+    
+for i in range(stop - start + 1):
+    print " {:< 5.1f}".format(i+start), " {:<12.6e}".format(cheby[i]), " {:<12.6e}".format(cap), " {:< 12.6e}".format(cap - cheby[i])
+
+print "\n\nFor n = 15, we get the following results from testing error values of chebyshev nodes\n"
+
+cheby = test_cheby(15, start, stop)    
+
+cap = 2.**-15.
+
+print "\n {:^5.1}".format('x'), " {:^12}".format('p(x)'), " {:^12}".format('2^-n'), "  {:^12}".format('2^n-1 - p(x)')
+    
+for i in range(stop - start + 1):
+    print " {:< 5.1f}".format(i+start), " {:<12.6e}".format(cheby[i]), " {:<12.6e}".format(cap), " {:< 12.6e}".format(cap - cheby[i])
+
+
+#4.3.1
+
 def deriv(f,x):
     n = 5
     h = 1.
     d = []
     for i in range(n+1):
         d.append([(f(x + h) - f(x - h))/(2. * h)])
-        for j in range(1,i + 1):
-            d[i].append(d[i][j - 1] + (d[i][j - 1] - d[i - 1][j - 1])/(4.0 ** j - 1.0))
+        for j in range(1,i+1):
+            d[i].append(d[i][j-1]+(d[i][j-1]-d[i-1][j-1])/(4.0**j - 1.0))
         h /= 2.
     return d[n][n]
-
-
-my_cos = lambda x: math.cos(x)
-my_arctan = lambda x: math.atan(x)
-my_abs = lambda x: abs(x)
-print deriv(my_cos, 0)
-print deriv(my_arctan, 1.)
-print deriv(my_abs, 0)
-
-
+    
 def dblderiv(f,x):
     n = 5
     h = 1.
@@ -982,15 +1151,20 @@ def dblderiv(f,x):
         h /= 2.
     return d[n][n]
 
-
 my_cos = lambda x: math.cos(x)
 my_arctan = lambda x: math.atan(x)
 my_abs = lambda x: abs(x)
-print dblderiv(my_cos, 0.)
-print dblderiv(my_arctan, 1.)
-print dblderiv(my_abs, 0.) #not returning a clean value, as expected
+print
+print "The derivitive of cos(x) at x = 0 is {:.5}".format(deriv(my_cos, 0))
+print "The derivitive of arctan(x) at x = 1 is {:.5}".format(deriv(my_arctan, 1.))
+print "The derivitive of abs(x) at x = 0 is {:.5}".format(deriv(my_abs, 0))
+print
 
+#4.3.2
 
+print "The 2nd derivitive of cos(x) at x = 0 is {:.5}".format(dblderiv(my_cos, 0.))
+print "The 2nd derivitive of cos(x) at x = 1 is {:.5}".format(dblderiv(my_arctan, 1.))
+print "The 2nd derivitive of cos(x) at x = 0 is {:.5}".format(dblderiv(my_abs, 0.)) #error
 def naive_gauss(a, b):
     n = a.shape[0] - 1
     x = [0 for i in range(n)]
