@@ -922,16 +922,24 @@ print a
  #   temp=(temp)*(t-x[i])+a[i]
   #  Eval = temp
   
-  
+#chebyshev calculation. 
 from math import cos
 from math import pi
 
+def chebyshevnodes(a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
+    x = []
+    for i in range(n+1):
+        if 0<=i<=n: #diagnostic to make sure we are operating within the bounds of the function. Not really needed. 
+            print "i is less than or equal to n"
+        else:
+            print "i is NOT less than or equal to n"
+            break
+    for i in range(n+1):
+        x.append((0.5*(a+b))+((0.5*(b-a))*cos(((2.0*float(i))/(2.0*float(n))*pi))))
+    return x #returns calculated chebyshev nodes to matrix for use.
 
-def chebyshevnodes(a,b,n):
-    for i in range(0,n):
-        x[i]=(0.5*(a+b))+(0.5*(a+b)*cos((((2*[i]+1)/((2*n)+2))*pi))) #alternatively cos((((2[i]-1)/(2*n))*pi)
+print chebyshevnodes(-5,5,10)
 
-print chebyshevnodes(-5,5,5)
 
 def deriv(f, x, h, n):
     d = np.matrix(np.zeros((n, n)))
