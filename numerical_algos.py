@@ -899,46 +899,129 @@ print X3
 #The computer is highly prone to error because the values it is computing are very small... i.e. the differences are tiny.
 #The error compounds as the size of the Hilbert matrix increases.
 
-from numpy import array
-
-x = array([1,2,3,-4,5]) #x-values
-y = array([2,48,272,1182,2262]) #y-values
-a = [0] * 5 #need array to store values that has a length of 5. The zeros will be appended in the loop.
-n=5 #number of coefficients. Must match length of a.
-
-def coef(n,x,y,a):
-    for i in range(0,n):
-            a[i]=y[i]
+#calculates coefficients for polynomial interpolation
+def coef(x,y):
+    a = [] #need array to store values.
+    n = len(x)
+    for i in range(n):
+            a.append(y[i])
     for j in range(1,n):
-        for i in range(n,j-1):
-            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j])
+        for i in reversed(range(j,n)):
+            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
+        return a
 
-print coef(5,a,x,y)
-print a
 
-#def eval(n,x,y,t): #single real value. Function outputs value of the interpolating polynomial at t.
-#temp = a[n]
-#for i in range(n-1,0): #needs to be for i in n-1 to 0 step -1.
- #   temp=(temp)*(t-x[i])+a[i]
-  #  Eval = temp
+def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
+    a = coef(xvalues,yvalues) #output form coef function.
+    #print a #diagnostic check to see if a contains the correct values.
+    n = len(x)
+    #print n #diagnostic check to see if the length matches the number of values of x.
+    t = a[n-1]
+    for i in reversed(range(n-1)): #the loop that generates the polynomial.
+        t = t*(p-x[i])+a[i]
+    return t #returns the value.
   
-#chebyshev calculation. 
+  
+#chebyshev x-value calculation. 
 from math import cos
 from math import pi
 
 def chebyshevnodes(a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
-    x = []
-    for i in range(n+1):
-        if 0<=i<=n: #diagnostic to make sure we are operating within the bounds of the function. Not really needed. 
+    x = [] #empty matrix to store values.
+    for i in range(1): #really only need to check this once.
+        if 0<=i<=n: #diagnostic to make sure we are operating within the bounds of the function. Not really needed.
             print "i is less than or equal to n"
         else:
             print "i is NOT less than or equal to n"
             break
     for i in range(n+1):
-        x.append((0.5*(a+b))+((0.5*(b-a))*cos(((2.0*float(i))/(2.0*float(n))*pi))))
+        x.append((0.5*(a+b))+((0.5*(b-a))*cos(((2.0*float(i))/(2.0*float(n))*pi)))) #formula for Chebyshev x-value calculation.
     return x #returns calculated chebyshev nodes to matrix for use.
 
-print chebyshevnodes(-5,5,10)
+print chebyshevnodes(-5,5,10) #print the result. 
+
+
+#problem 4.2.1
+
+#Find the interpolating polynomial of degree 20 for f(x)=1/((x^2)+1)
+
+#need to first generate a table of 21 equally spaced nodes from [-5,5].
+
+def f(x): #our function that will generate values for y for a given x.
+    return 1/((x**2)+1)
+
+def node_calc(func, a, b, n): #n=number of nodes, a=left most point, b=right most point, func=function.
+    adistance = abs(a)
+    #print adistance #check to see if distance from a to zero is correct
+    bdistance = abs(b)
+    #print bdistance #check to see if distance from b to zero is correct
+    spacing = (float(adistance) + float(bdistance))/n #need to use float for integer division. 
+    print spacing #diagnostic check to see if we are assigning the correct spacing.
+    print "above value indicates the spacing between individual values of x."
+    x = []
+    y = []
+    for i in range(n+1):
+        x.append(a+i*spacing)
+    for i in range(n+1):
+        y.append(func(x[i]))
+    return (x,y)
+
+
+print node_calc(f,-5,5,21)
+
+#Problem 4.2.1
+#Find the interpolating polynomial of degree 20 for f(x)=1/((x^2)+1)
+
+#need to first generate a table of 21 equally spaced nodes from [-5,5].
+
+def f(x): #our function that will generate values for y for a given x.
+    return 1/((x**2)+1)
+
+def node_calc(func, a, b, n): #n=number of nodes, a=left most point, b=right most point, func=function.
+    distance = abs(b-a) #need the distance between a and b.
+    print distance #check to see if distance from b to zero is correct
+    spacing = float(distance)/n #need to use float for integer division.
+    print spacing #diagnostic check to see if we are assigning the correct spacing.
+    print "above value indicates the spacing between individual values of x."
+    x = []
+    y = []
+    for i in range(n+1):
+        x.append(a+i*spacing)
+    for i in range(n+1):
+        y.append(func(x[i]))
+    return [x,y]
+
+
+table =  array(node_calc(f,-5,5,21))
+#print table
+
+xvalues = []
+yvalues = []
+
+xvalues = table[0,0:22] #n+1 nodes
+yvalues = table[1,0:22] #n+1 nodes
+
+#print xvalues
+#print yvalues
+
+#now we have our x's and y's and can apply coef and eval to find polynomial.
+
+def coef(x,y):
+    a = [] #need array to store values.
+    n = len(x)
+    for i in range(n):
+            a.append(y[i])
+    for j in range(1,n):
+        for i in reversed(range(j,n)):
+            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
+        return a
+
+
+coef21 = array(coef(xvalues,yvalues))
+print coef21
+
+
+
 
 
 def deriv(f, x, h, n):
