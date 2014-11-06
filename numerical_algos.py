@@ -940,6 +940,37 @@ def chebyshevnodes(a,b,n): #number of nodes defined by user as n, a=left most po
 
 print chebyshevnodes(-5,5,10) #print the result. 
 
+#Problem 4.1.1
+from numpy import array
+
+xvalues = array([1,2,3,-4,5]) #x-values
+yvalues = array([2,48,272,1182,2262]) #y-values
+
+def coef(x,y):
+    a = [] #need array to store values.
+    n = len(x)
+    for i in range(n):
+            a.append(y[i])
+    for j in range(1,n):
+        for i in reversed(range(j,n)):
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
+
+print coef(xvalues,yvalues)
+
+def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
+    a = coef(x,y) #output form coef function.
+    #print a #diagnostic check to see if a contains the correct values.
+    n = len(x)
+    #print n #diagnostic check to see if the length matches the number of values of x.
+    t = a[n-1]
+    for i in reversed(range(n-1)): #the loop that generates the polynomial.
+        t = t*(p-x[i])+a[i]
+    return t #returns the value.
+
+print eval(xvalues,yvalues,-1) #returns 12.
+
+#so coef and eval functions work. 
 
 #Problem 4.2.1
 #Find the interpolating polynomial of degree 20 for f(x)=1/((x^2)+1)
@@ -1038,13 +1069,13 @@ def node_calc2(func, n): #n=number of nodes desired minus 1, a=left most point, 
     return [x,y]
 
 table = array(node_calc2(f,40))
-#print table
+print table
 
 xvalues = table[0,0:41] #n+1 nodes. Referencing row 0, columns 0 to 21.
 yvalues = table[1,0:41] #n+1 nodes Referencing row 1, columns 0 to 21.
 
-#print xvalues
-#print yvalues
+print xvalues
+print yvalues
 
 #need to define both coef and eval for print.
 
@@ -1055,8 +1086,8 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
-            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
-        return a
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
 
 def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
     a = coef(x,y) #output form coef function.
@@ -1074,11 +1105,10 @@ print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
 
 for i in table[0]: #doing this to set a length for the loop and thus the correct amount to print.
     print " {:< 6.1f}".format(i),
-    print " {:< 13e}".format(eval(xvalues,yvalues,i)),
-    print " {:< 13e}".format(f(i)),
-    print " {:< 13e}".format((f(i) - eval(xvalues,yvalues,i)))
+    print " {:< 13e}".format(eval(xvalues,yvalues,i)), #evaluating f(x).
+    print " {:< 13e}".format(f(i)), #evaluating p(x) using given x-values.
+    print " {:< 13e}".format((f(i) - eval(xvalues,yvalues,i))) #error
 
-#This function works very well at the approximating the values at the end points, but varies wildly elsewhere.
 
 #Problem 4.2.2b
 
@@ -1116,8 +1146,8 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
-            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
-        return a
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
 
 def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
     a = coef(x,y) #output form coef function.
@@ -1157,8 +1187,8 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
-            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
-        return a
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
 
 def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
     a = coef(x,y) #output form coef function.
@@ -1193,8 +1223,6 @@ table =  array(node_calc(f,-1,1,40))
 xvalues = table[0,0:41] #n+1 nodes. Referencing row 0, columns 0 to 41.
 yvalues = table[1,0:41] #n+1 nodes. Referencing row 1, columns 0 to 41.
 
-
-
 def chebyshevnodes(a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
     x = [] #empty matrix to store values.
     for i in range(1): #really only need to check this once.
@@ -1214,7 +1242,7 @@ print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
 
 print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
 
-for i in table[0]: #doing this to set a length for the loop and thus the correct amount to print.
+for i in chvvalues41[0]: #doing this to set a length for the loop and thus the correct amount to print.
     print " {:< 6.1f}".format(i),
     print " {:< 13e}".format(eval(chvvalues41,yvalues,i)),
     print " {:< 13e}".format(f(i)),
@@ -1230,7 +1258,7 @@ chvvalues15 = array(chebyshevnodes(-1,1,15))
 a = -1
 b = 1
 
-#still can't get these things to print properly. 
+#still can't get these things to print properly.
 
 cap = 2.**-15.
 
@@ -1238,7 +1266,7 @@ print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
 
 print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'p(x)','2^-n','2^-n - p(x)')
 
-for i in chvvalues15[0]:
+for i in table[0]:
     print " {:< 5.1f}".format(i),
     print " {:< 12.6e}".format(chvvalues15[i]),
     print " {:< 12.6e}".format(cap),
@@ -1246,7 +1274,6 @@ for i in chvvalues15[0]:
 
 
 #chebyshev nodes are better because it reduces the oscillations normally associated with polynomial interpolation.
-
 
 #____________#
 
