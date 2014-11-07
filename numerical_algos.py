@@ -981,7 +981,6 @@ print eval(xvalues,yvalues,-1) #returns 12.
 #so coef and eval functions work. 
 
 #Problem 4.2.1
-#Problem 4.2.1
 #Find the interpolating polynomial of degree 20 for f(x)=1/((x^2)+1)
 
 #need to first generate a table of 21 equally spaced nodes from [-5,5].
@@ -1049,7 +1048,7 @@ print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
 
 print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
 
-for i in table2[0]: #doing this to set a length for the loop and thus the correct amount to print.
+for i in table[0]: #doing this to set a length for the loop and thus the correct amount to print.
     print " {:< 6.1f}".format(i),
     print " {:< 13e}".format(eval(xvalues2,yvalues2,i)), #evaluating f(x).
     print " {:< 13e}".format(f(i)), #evaluating p(x) using given x-values.
@@ -1068,26 +1067,6 @@ from math import cos
 def f(x): #our function that will generate values for y for a given x.
     return 1/((x**2)+1)
 
-def node_calc(func, a, b, n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
-    distance = abs(b-a) #need the distance between a and b.
-    #print distance #check to see if distance from b to zero is correct
-    spacing = float(distance)/n #need to use float for integer division.
-    #print spacing #diagnostic check to see if we are assigning the correct spacing.
-    #print "above value indicates the spacing between individual values of x."
-    x = []
-    y = []
-    for i in range(n+1):
-        x.append(a+i*spacing)
-        y.append(func(x[i]))
-    return [x,y]
-
-
-table = node_calc(f,-10,10,40)
-#print table
-
-xvalues = table[0]
-yvalues = table[1]
-
 def node_calc2(func,n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
     x = []
     y = []
@@ -1096,11 +1075,11 @@ def node_calc2(func,n): #n=number of nodes desired minus 1, a=left most point, b
         y.append(func(x[i]))
     return [x,y]
 
-table2 = node_calc2(f,40)
+table = node_calc2(f,40)
 #print table
 
-xvalues2 = table[0] #n+1 nodes. Referencing row 0, columns 0 to 21.
-yvalues2 = table[1] #n+1 nodes Referencing row 1, columns 0 to 21.
+xvalues = table[0]
+yvalues = table[1]
 
 #for i in xvalues:
  #   print i
@@ -1108,7 +1087,7 @@ yvalues2 = table[1] #n+1 nodes Referencing row 1, columns 0 to 21.
 #print len(xvalues)
 
 #print xvalues
-#print yvalues
+#print yvalues2
 
 #need to define both coef and eval for print.
 
@@ -1124,8 +1103,6 @@ def coef(x,y):
     return a
 
 
-
-#print coef(xvalues,yvalues)
 #print coef(xvalues2,yvalues2)
 
 
@@ -1145,13 +1122,14 @@ print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
 
 print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
 
-for i in table2[0]: #doing this to set a length for the loop and thus the correct amount to print.
+for i in table[0]: #doing this to set a length for the loop and thus the correct amount to print.
     print " {:< 6.1f}".format(i),
-    print " {:< 13e}".format(eval(xvalues2,yvalues2,i)), #evaluating f(x).
+    print " {:< 13e}".format(eval(xvalues,yvalues,i)), #evaluating f(x).
     print " {:< 13e}".format(f(i)), #evaluating p(x) using given x-values.
-    print " {:< 13e}".format((f(i) - eval(xvalues2,yvalues2,i))) #error
+    print " {:< 13e}".format((f(i) - eval(xvalues,yvalues,i))) #error
 
-#Problem4.2.2b
+
+#Problem 4.2.2b
 from math import pi
 from math import cos
 
@@ -1162,7 +1140,7 @@ def node_calc3(func,n): #n=number of nodes desired minus 1, a=left most point, b
     x = []
     y = []
     for i in range(n+1):
-        x.append(5*cos(((2*i+1.0)*pi)/((2*n)+1))) #chebyshev node calculation.
+        x.append(5*cos(((2*i+1.0)*pi)/((2*(n+1))))) #chebyshev node calculation.
         y.append(func(x[i]))
     return [x,y]
 
@@ -1177,7 +1155,7 @@ yvalues = table[1]
 
 #print len(xvalues)
 
-#print xvalues
+print xvalues
 #print yvalues
 
 #need to define both coef and eval for print.
