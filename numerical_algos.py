@@ -907,8 +907,10 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
-            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
-        return a
+            #print i,j
+            #print ((a[i]-a[i-1])/(x[i]-x[i-j]))
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
 
 
 def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
@@ -926,17 +928,21 @@ def eval(x,y,p): #single real value. Function returns value of the interpolating
 from math import cos
 from math import pi
 
-def chebyshevnodes(a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
+def chebyshevnodes(func,a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
     x = [] #empty matrix to store values.
+    y = []
     for i in range(1): #really only need to check this once.
         if 0<=i<=n: #diagnostic to make sure we are operating within the bounds of the function. Not really needed.
             print "i is less than or equal to n"
         else:
             print "i is NOT less than or equal to n"
             break
+    #for i in range(n+1):
+     #   x.append((0.5*(a+b))+((0.5*(b-a))*cos((2.0*float(i))/(2.0*float(n))*pi))) #formula for Chebyshev x-value calculation for ANY range [a,b].
     for i in range(n+1):
-        x.append((0.5*(a+b))+((0.5*(b-a))*cos(((2.0*float(i))/(2.0*float(n))*pi)))) #formula for Chebyshev x-value calculation.
-    return x #returns calculated chebyshev nodes to matrix for use.
+        x.append(cos((((2.0*float(i)+1)/(2.0*float(n)+2))*pi))) #formula given in book.
+        y.append(func(x[i]))
+    return [x,y] #returns calculated chebyshev nodes to matrix for use.
 
 print chebyshevnodes(-5,5,10) #print the result. 
 
@@ -953,6 +959,8 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
+            #print i,j
+            #print ((a[i]-a[i-1])/(x[i]-x[i-j]))
             a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
     return a
 
@@ -972,6 +980,7 @@ print eval(xvalues,yvalues,-1) #returns 12.
 
 #so coef and eval functions work. 
 
+#Problem 4.2.1
 #Problem 4.2.1
 #Find the interpolating polynomial of degree 20 for f(x)=1/((x^2)+1)
 
@@ -997,15 +1006,15 @@ def node_calc(func, a, b, n): #n=number of nodes desired minus 1, a=left most po
     return [x,y]
 
 
-table =  array(node_calc(f,-5,5,20))
-table2 = array(node_calc(f,-10,10,40))
+table =  node_calc(f,-5,5,20)
+table2 = node_calc(f,-10,10,40)
 #print table
 #print table2
 
-xvalues = table[0,0:21] #n+1 nodes. Referencing row 0, columns 0 to 21.
-yvalues = table[1,0:21] #n+1 nodes Referencing row 1, columns 0 to 21.
-xvalues2 = table2[0,0:41] #n+1 nodes. Referencing row 0, columns 0 to 41.
-yvalues2 = table2[1,0:41] #n+1 nodes. Referencing row 1, columns 0 to 41.
+xvalues = table[0]
+yvalues = table[1]
+xvalues2 = table2[0]
+yvalues2 = table2[1]
 
 #print xvalues
 #print yvalues
@@ -1021,8 +1030,10 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
-            a[i]=(a[i]-a[i-1])/(x[i]-x[i-j]) #divided differences
-        return a
+            #print i,j
+            #print ((a[i]-a[i-1])/(x[i]-x[i-j]))
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
 
 def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
     a = coef(x,y) #output form coef function.
@@ -1040,42 +1051,64 @@ print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
 
 for i in table2[0]: #doing this to set a length for the loop and thus the correct amount to print.
     print " {:< 6.1f}".format(i),
-    print " {:< 13e}".format(eval(xvalues2,yvalues2,i)),
-    print " {:< 13e}".format(f(i)),
-    print " {:< 13e}".format((f(i) - eval(xvalues,yvalues2,i)))
+    print " {:< 13e}".format(eval(xvalues2,yvalues2,i)), #evaluating f(x).
+    print " {:< 13e}".format(f(i)), #evaluating p(x) using given x-values.
+    print " {:< 13e}".format((f(i) - eval(xvalues2,yvalues2,i))) #error
 
 
-#At the far right end point, there is a huge discrepancy between f(x) and p(x). This shows just
+#All over the output range, there is a huge discrepancy between f(x) and p(x). This shows just
 #how easily polynomial interpolation can fail to approximate the polynomial at the endpoints, especially
-#when a large amount of nodes are used. The values of the error are increasingly growing in magnitude in a sort of
-#wave pattern.
+#when a large amount of nodes are used. The values of the error are increasingly growing in magnitude as x increases,
+#in a sort of wave pattern.
 
 #Problem 4.2.2a
-
-from numpy import array
 from math import pi
 from math import cos
 
 def f(x): #our function that will generate values for y for a given x.
     return 1/((x**2)+1)
 
-def node_calc2(func, n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
+def node_calc(func, a, b, n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
+    distance = abs(b-a) #need the distance between a and b.
+    #print distance #check to see if distance from b to zero is correct
+    spacing = float(distance)/n #need to use float for integer division.
+    #print spacing #diagnostic check to see if we are assigning the correct spacing.
+    #print "above value indicates the spacing between individual values of x."
     x = []
     y = []
     for i in range(n+1):
-        x.append(5*cos((i*pi)/20.0)) #chebyshev node calculation.
-    for i in range(n+1):
+        x.append(a+i*spacing)
         y.append(func(x[i]))
     return [x,y]
 
-table = array(node_calc2(f,40))
-print table
 
-xvalues = table[0,0:41] #n+1 nodes. Referencing row 0, columns 0 to 21.
-yvalues = table[1,0:41] #n+1 nodes Referencing row 1, columns 0 to 21.
+table = node_calc(f,-10,10,40)
+#print table
 
-print xvalues
-print yvalues
+xvalues = table[0]
+yvalues = table[1]
+
+def node_calc2(func,n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
+    x = []
+    y = []
+    for i in range(n+1):
+        x.append(5*cos((i*pi)/n)) #chebyshev node calculation.
+        y.append(func(x[i]))
+    return [x,y]
+
+table2 = node_calc2(f,40)
+#print table
+
+xvalues2 = table[0] #n+1 nodes. Referencing row 0, columns 0 to 21.
+yvalues2 = table[1] #n+1 nodes Referencing row 1, columns 0 to 21.
+
+#for i in xvalues:
+ #   print i
+
+#print len(xvalues)
+
+#print xvalues
+#print yvalues
 
 #need to define both coef and eval for print.
 
@@ -1086,8 +1119,83 @@ def coef(x,y):
             a.append(y[i])
     for j in range(1,n):
         for i in reversed(range(j,n)):
+            #print ((a[i]-a[i-1])/(x[i]-x[i-j]))
             a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
     return a
+
+
+
+#print coef(xvalues,yvalues)
+#print coef(xvalues2,yvalues2)
+
+
+def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
+    a = coef(x,y) #output form coef function.
+    #print a #diagnostic check to see if a contains the correct values.
+    n = len(x)
+    #print n #diagnostic check to see if the length matches the number of values of x.
+    t = a[n-1]
+    for i in reversed(range(n-1)): #the loop that generates the polynomial.
+        t = t*(p-x[i])+a[i]
+    return t #returns the value.
+
+#print eval(xvalues,yvalues,-1)
+
+print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
+
+print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
+
+for i in table2[0]: #doing this to set a length for the loop and thus the correct amount to print.
+    print " {:< 6.1f}".format(i),
+    print " {:< 13e}".format(eval(xvalues2,yvalues2,i)), #evaluating f(x).
+    print " {:< 13e}".format(f(i)), #evaluating p(x) using given x-values.
+    print " {:< 13e}".format((f(i) - eval(xvalues2,yvalues2,i))) #error
+
+#Problem4.2.2b
+from math import pi
+from math import cos
+
+def f(x): #our function that will generate values for y for a given x.
+    return 1/((x**2)+1)
+
+def node_calc3(func,n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
+    x = []
+    y = []
+    for i in range(n+1):
+        x.append(5*cos(((2*i+1.0)*pi)/((2*n)+1))) #chebyshev node calculation.
+        y.append(func(x[i]))
+    return [x,y]
+
+table = node_calc3(f,40)
+#print table
+
+xvalues = table[0]
+yvalues = table[1]
+
+#for i in xvalues:
+ #   print i
+
+#print len(xvalues)
+
+#print xvalues
+#print yvalues
+
+#need to define both coef and eval for print.
+
+def coef(x,y):
+    a = [] #need array to store values.
+    n = len(x)
+    for i in range(n):
+            a.append(y[i])
+    for j in range(1,n):
+        for i in reversed(range(j,n)):
+            #print i,j
+            #print ((a[i]-a[i-1])/(x[i]-x[i-j]))
+            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
+    return a
+
+
+#print coef(xvalues,yvalues)
 
 def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
     a = coef(x,y) #output form coef function.
@@ -1110,74 +1218,11 @@ for i in table[0]: #doing this to set a length for the loop and thus the correct
     print " {:< 13e}".format((f(i) - eval(xvalues,yvalues,i))) #error
 
 
-#Problem 4.2.2b
-
-from numpy import array
-from math import pi
-from math import cos
-
-def f(x): #our function that will generate values for y for a given x.
-    return 1/((x**2)+1)
-
-def node_calc3(func, n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
-    x = []
-    y = []
-    for i in range(n+1):
-        x.append(5*cos(((2*i+1.0)*pi)/42.0)) #chebyshev node calculation.
-    for i in range(n+1):
-        y.append(func(x[i]))
-    return [x,y]
-
-table = array(node_calc3(f,40))
-#print table
-
-xvalues = table[0,0:41] #n+1 nodes. Referencing row 0, columns 0 to 21.
-yvalues = table[1,0:41] #n+1 nodes Referencing row 1, columns 0 to 21.
-
-#print xvalues
-#print yvalues
-
-#need to define both coef and eval for print.
-
-def coef(x,y):
-    a = [] #need array to store values.
-    n = len(x)
-    for i in range(n):
-            a.append(y[i])
-    for j in range(1,n):
-        for i in reversed(range(j,n)):
-            a[i]=((a[i]-a[i-1])/(x[i]-x[i-j])) #divided differences
-    return a
-
-def eval(x,y,p): #single real value. Function returns value of the interpolating polynomial at p.
-    a = coef(x,y) #output form coef function.
-    #print a #diagnostic check to see if a contains the correct values.
-    n = len(x)
-    #print n #diagnostic check to see if the length matches the number of values of x.
-    t = a[n-1]
-    for i in reversed(range(n-1)): #the loop that generates the polynomial.
-        t = t*(p-x[i])+a[i]
-    return t #returns the value.
-
-print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
-
-print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
-
-for i in table[0]: #doing this to set a length for the loop and thus the correct amount to print.
-    print " {:< 6.1f}".format(i),
-    print " {:< 13e}".format(eval(xvalues,yvalues,i)),
-    print " {:< 13e}".format(f(i)),
-    print " {:< 13e}".format((f(i) - eval(xvalues,yvalues,i)))
-
-#here I get a bunch of nan's.
-
 #Problem 4.2.10
 
 #chebyshev x-value calculation.
 from math import cos
 from math import pi
-from numpy import array
-
 #need to define both coef and eval for print.
 
 def coef(x,y):
@@ -1203,77 +1248,165 @@ def eval(x,y,p): #single real value. Function returns value of the interpolating
 def f(x): #our function that will generate values for y for a given x.
     return 1/((x**2)+1)
 
-def node_calc(func, a, b, n): #n=number of nodes desired minus 1, a=left most point, b=right most point, func=function.
-    distance = abs(b-a) #need the distance between a and b.
-    #print distance #check to see if distance from b to zero is correct
-    spacing = float(distance)/n #need to use float for integer division.
-    #print spacing #diagnostic check to see if we are assigning the correct spacing.
-    #print "above value indicates the spacing between individual values of x."
-    x = []
-    y = []
-    for i in range(n+1):
-        x.append(a+i*spacing)
-    for i in range(n+1):
-        y.append(func(x[i]))
-    return [x,y]
-
-table =  array(node_calc(f,-1,1,40))
-#print table
-
-xvalues = table[0,0:41] #n+1 nodes. Referencing row 0, columns 0 to 41.
-yvalues = table[1,0:41] #n+1 nodes. Referencing row 1, columns 0 to 41.
-
-def chebyshevnodes(a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
+def chebyshevnodes(func,a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
     x = [] #empty matrix to store values.
+    y = []
     for i in range(1): #really only need to check this once.
         if 0<=i<=n: #diagnostic to make sure we are operating within the bounds of the function. Not really needed.
             print "i is less than or equal to n"
         else:
             print "i is NOT less than or equal to n"
             break
+    #for i in range(n+1):
+     #   x.append((0.5*(a+b))+((0.5*(b-a))*cos((2.0*float(i))/(2.0*float(n))*pi))) #formula for Chebyshev x-value calculation for ANY range [a,b].
     for i in range(n+1):
-        x.append((0.5*(a+b))+((0.5*(b-a))*cos(((2.0*float(i))/(2.0*float(n))*pi)))) #formula for Chebyshev x-value calculation for ANY range [a,b].
-    return x #returns calculated chebyshev nodes to matrix for use.
+        x.append(cos((((2.0*float(i)+1)/(2.0*float(n)+2))*pi))) #formula given in book.
+        y.append(func(x[i]))
+    return [x,y] #returns calculated chebyshev nodes to matrix for use.
 
-chvvalues41 = array(chebyshevnodes(-1,1,40)) #needs to be 40 because loop goes to n+1.
-#print chvvalues
+#chvvalues41 = chebyshevnodes(-1,1,40) #needs to be 40 because loop goes to n+1.
+#print chvvalues41
 
-print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
+#print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
 
-print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
+#print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'f(x)','p(x)','f(x)-p(x)')
 
-for i in chvvalues41[0]: #doing this to set a length for the loop and thus the correct amount to print.
-    print " {:< 6.1f}".format(i),
-    print " {:< 13e}".format(eval(chvvalues41,yvalues,i)),
-    print " {:< 13e}".format(f(i)),
-    print " {:< 13e}".format((f(i) - eval(chvvalues41,yvalues,i)))
+#for i in table[0]: #doing this to set a length for the loop and thus the correct amount to print.
+ #   print " {:< 6.1f}".format(i),
+  #  print " {:< 13e}".format(eval(chvvalues41,yvalues,i)),
+   # print " {:< 13e}".format(f(i)),
+    #print " {:< 13e}".format((f(i) - eval(chvvalues41,yvalues,i)))
 
 #print chebyshevnodes(-1,1,3) #print the result.
 #print chebyshevnodes(-1,1,7) #print the result.
 #print chebyshevnodes(-1,1,15) #print the result.
 
-chvvalues15 = array(chebyshevnodes(-1,1,15))
-#print chvvalues15
+chvvalues15 = chebyshevnodes(f,-1,1,15)
+
+xvalues = chvvalues15[0]
+yvalues = chvvalues15[1]
+
+#print xvalues
 
 a = -1
 b = 1
 
-#still can't get these things to print properly.
-
 cap = 2.**-15.
+#print cap
 
-print "{:^50}\n".format("f(x) = 1/(x^2 + 1)")
+print "\n {:^5.1}".format('x'), " {:^12}".format('p(x)'), " {:^12}".format('2^-n'), " {:^12}".format('2^n-1 - p(x)')
 
-print " {:^7} {:^14} {:^14} {:^14}\n".format('x', 'p(x)','2^-n','2^-n - p(x)')
-
-for i in table[0]:
+for i in chvvalues15[0]:
     print " {:< 5.1f}".format(i),
-    print " {:< 12.6e}".format(chvvalues15[i]),
-    print " {:< 12.6e}".format(cap),
-    print " {:< 12.6e}".format(cap - chvvalues15[i])
+    print " {:<12.6e}".format(eval(xvalues,yvalues,i)),
+    print " {:<12.6e}".format(cap),
+    print " {:< 12.6e}".format((cap) - eval(xvalues,yvalues,i))
 
 
 #chebyshev nodes are better because it reduces the oscillations normally associated with polynomial interpolation.
+#We can clearly see here that the error never exceeds 2.**-15.
+
+def deriv(f,x):
+    n = 5
+    h = 1.
+    d = []
+    for i in range(n+1):
+        d.append([(f(x + h) - f(x - h))/(2. * h)])
+        for j in range(1,i+1):
+            d[i].append(d[i][j-1]+(d[i][j-1]-d[i-1][j-1])/(4.0**j - 1.0))
+        h /= 2.
+    return d
+    
+def deriv2(f,x):
+    n = 5
+    h = 1.
+    d = []
+    for i in range(n+1):
+        d.append([(f(x + h) - 2. * f(x) + f(x - h))/(h ** 2.)])
+        for j in range(1,i+1):
+            d[i].append(d[i][j-1]+(d[i][j-1]-d[i-1][j-1])/(4.**(j+1) - 1.))
+        h /= 2.
+    return d[n][n]
+
+#Problem 4.3.1
+
+import math
+import numpy as np
+
+def deriv(f,x):
+    n = 5
+    h = 1.
+    d = []
+    for i in range(n+1):
+        #print i
+        #print (f(x + h) - f(x - h))/(2. * h)
+        d.append([(f(x + h) - f(x - h))/(2. * h)])
+        for j in range(1,i+1):
+            d[i].append(d[i][j-1]+(d[i][j-1]-d[i-1][j-1])/(4.0**j - 1.0))
+        h /= 2.
+    return d[n][n]
+
+
+cos = lambda x: math.cos(x)
+arctan = lambda x: math.atan(x)
+abss = lambda x: abs(x)
+#print deriv(cos, 0.)
+#print deriv(arctan, 1.)
+#print deriv(abss, 0.)
+
+def resultsmatrix(n,f,x): #function to create matrix A
+    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+            A[i,j]=deriv(f,x)
+    print "The value of the derivative at x is {:.5}".format(A[1,1]) #print derivative from element 1,1.
+    return A
+
+print resultsmatrix(10,cos,0.)
+
+print resultsmatrix(10,arctan,1.)
+
+print resultsmatrix(10,abss,0.)
+
+#Problem 4.3.2
+
+import math
+import numpy as np
+
+def deriv2(f,x):
+    n = 5
+    h = 1.
+    d = []
+    for i in range(n+1):
+        d.append([(f(x + h) - 2. * f(x) + f(x - h))/(h ** 2.)])
+        for j in range(1,i+1):
+            d[i].append(d[i][j-1]+(d[i][j-1]-d[i-1][j-1])/(4.**(j+1) - 1.))
+        h /= 2.
+    return d[n][n]
+
+
+cos = lambda x: math.cos(x)
+arctan = lambda x: math.atan(x)
+abss = lambda x: abs(x)
+
+def resultsmatrix2(n,f,x): #function to create matrix A
+    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    for i in range(n):
+        for j in range(n):
+            A[i,j]=deriv2(f,x)
+    print "The value of the 2nd derivative at x is {:.5}".format(A[1,1]) #print derivative from element 1,1.
+    return A
+
+print resultsmatrix2(10,cos,0.)
+
+print resultsmatrix2(10,arctan,1.)
+
+print resultsmatrix2(10,abss,0.)
+
+
+
+
+
 
 #____________#
 
