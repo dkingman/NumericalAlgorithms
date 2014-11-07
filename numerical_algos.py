@@ -162,7 +162,8 @@ def newton(f,f_prime,x,tolerance,precision,display,steps):
                 #print [steps,x,fx]
         if abs(d) < tolerance:
             print 'convergence'
-            #return [steps, x, fx]
+            break
+    return [steps, x, fx]
 
 
 def function(x):
@@ -206,11 +207,12 @@ def newtonmod(f,f_prime,x,tolerance,precision,display,steps):
             d=d
         fx = f(x)
         if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, d, fx)
+                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
         #print [steps,x,fx]
         if abs(d) < tolerance:
             print 'convergence'
-            #return [steps, x, fx]
+            break
+    return [steps, x, fx]
 
 
 
@@ -235,19 +237,20 @@ def newtonaccel(f,f_prime,x,tolerance,precision,display,steps):
             print 'small derivative'
             #return [steps,x,fx]
             break
-        d=(fx/fp)
+        d=fx/fp
         x=x-(2*d)
-        if abs(f(x-d)) >= abs(f(x)):
-            d=0.5*d
-        else:
-            d=d
+        #if abs(f(x-d)) >= abs(f(x)):
+         #   d=0.5*d
+        #else:
+         #   d=d
         fx = f(x)
         if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, d, fx)
+                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
         #print [steps,x,fx]
         if abs(d) < tolerance:
             print 'convergence'
-            #return [steps, x, fx]
+            break
+    return [steps, x, fx]
 
 
 def doublerootfn(x):
@@ -298,8 +301,8 @@ def secant(f, a, b, precision, steps):
         temp = fa
         fa = fb
         fb = temp
-        print [0,a,fa]
-        print [1,b,fb] #Galloway said [0,b,fb], book said
+    print [0,a,fa]
+    print [1,b,fb]
     for n in range(2, steps):
         if abs(fa) > abs(fb):
             temp = a
@@ -315,7 +318,6 @@ def secant(f, a, b, precision, steps):
         if abs(d) < precision:
             print 'Convergence'
             #print "" #so that when testing multiple functions the output is easier to read.
-            return [n, a, fa]
             break
         #else: #Do not need this.
             #print 'Does Not Converge'
@@ -324,7 +326,7 @@ def secant(f, a, b, precision, steps):
         a = a - d
         fa = f(a)
         print 'n=', n, ' a=', a, ' fa=', fa
-        #return [n, a, fa] #never return at the end of a loop
+    return [n, a, fa]
 
 
 def secantfn(x):
