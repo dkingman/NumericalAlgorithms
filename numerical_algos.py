@@ -2,18 +2,20 @@
 """
 Created on Tue Jan 29 23:14:17 2013
 
-@author: David Kingman, Valentino Constantinou
+@authors: David Kingman, Valentino Constantinou, Taylor Stevens
 """
 
 #NOTE: There are currently some errors in the code (linear algebra). 
 
 import math
-import numpy as np
-from numarray import *
-from numarray import dot
 import copy
 from numarray import argmax
-
+from math import cos
+from math import atan
+from math import sin
+from math import pi
+from math import 
+from numpy import array
 
 def eulersConstant():
     x = s = 1.0
@@ -927,8 +929,6 @@ def eval(x,y,p): #single real value. Function returns value of the interpolating
   
   
 #chebyshev x-value calculation. 
-from math import cos
-from math import pi
 
 def chebyshevnodes(func,a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
     x = [] #empty matrix to store values.
@@ -949,7 +949,6 @@ def chebyshevnodes(func,a,b,n): #number of nodes defined by user as n, a=left mo
 print chebyshevnodes(-5,5,10) #print the result. 
 
 #Problem 4.1.1
-from numpy import array
 
 xvalues = array([1,2,3,-4,5]) #x-values
 yvalues = array([2,48,272,1182,2262]) #y-values
@@ -986,8 +985,6 @@ print eval(xvalues,yvalues,-1) #returns 12.
 #Find the interpolating polynomial of degree 20 for f(x)=1/((x^2)+1)
 
 #need to first generate a table of 21 equally spaced nodes from [-5,5].
-
-from numpy import array
 
 def f(x): #our function that will generate values for y for a given x.
     return 1/((x**2)+1)
@@ -1063,8 +1060,6 @@ for i in table[0]: #doing this to set a length for the loop and thus the correct
 #in a sort of wave pattern.
 
 #Problem 4.2.2a
-from math import pi
-from math import cos
 
 def f(x): #our function that will generate values for y for a given x.
     return 1/((x**2)+1)
@@ -1132,8 +1127,6 @@ for i in table[0]: #doing this to set a length for the loop and thus the correct
 
 
 #Problem 4.2.2b
-from math import pi
-from math import cos
 
 def f(x): #our function that will generate values for y for a given x.
     return 1/((x**2)+1)
@@ -1201,8 +1194,7 @@ for i in table[0]: #doing this to set a length for the loop and thus the correct
 #Problem 4.2.10
 
 #chebyshev x-value calculation.
-from math import cos
-from math import pi
+
 #need to define both coef and eval for print.
 
 def coef(x,y):
@@ -1310,9 +1302,6 @@ def deriv2(f,x):
 
 #Problem 4.3.1
 
-import math
-import numpy as np
-
 def deriv(f,x):
     n = 5
     h = 1.
@@ -1350,9 +1339,6 @@ print resultsmatrix(10,abss,0.)
 
 #Problem 4.3.2
 
-import math
-import numpy as np
-
 def deriv2(f,x):
     n = 5
     h = 1.
@@ -1382,10 +1368,6 @@ print resultsmatrix2(10,cos,0.)
 print resultsmatrix2(10,arctan,1.)
 
 print resultsmatrix2(10,abss,0.)
-
-
-
-
 
 
 #____________#
@@ -1936,6 +1918,38 @@ def f_9(x): return math.sin(math.tan(x ** 2))
 calc_low_highs(f_7, low_high)
 calc_low_highs(f_8, low_high)
 calc_low_highs(f_9, low_high)
+
+#calculates f(x) on the interval [a,b] using the trapezoid rule with n equal sub-intervals.
+def trapezoid_uniform(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
+    h = (b-a)/n #sub-interval size
+    sum = 0.5*(f(a)+f(b))
+    for i in range(n-1):
+        x = a+float(i)*h
+        sum = sum + f(x)
+    sum = sum*h
+    return sum #output
+
+#Test functions
+
+def function1(x):
+    return sin(x)
+
+def function2(x):
+    return e**x
+
+def function3(x):
+    return atan(x)
+   
+    
+print trapezoid_uniform(function1,0.,pi,100) #answer is 2, we have 1.99884870579.
+print trapezoid_uniform(function2,0.,1.,100) #answer is 1.7828, we have 1.70138380273.
+print trapezoid_uniform(function3,0.,1.,100) #answer is 0.438825, we have 0.431016675615.
+
+
+
+
+
+
 
 
 def simpson(f, a, b, level, level_max, p=1e-5):
