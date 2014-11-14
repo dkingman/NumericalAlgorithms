@@ -1998,3 +1998,84 @@ print 8 * simpson(f_3, a, b, 0, 5)
 a = 0
 b = 5. * math.pi / 4.
 print simpson(f_4, a, b, 0, 5)
+
+
+#Problem 5.3.7
+def f(x): #to calculate the above function, we need an open interval (-1,1). There are asymptotes -1 and 1.
+    return 1.0/((1.0-(x**2.0))**(0.5))
+
+def b(x):
+    return x**2
+
+def nc_midpoint(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
+    h = (b-a)/n #sub-interval size
+    sum = (2.0*h*f(a))
+    for i in range(n):
+        x = a+float(i)*h
+        sum = sum + f(x)
+    sum = sum*h
+    return sum #output
+
+def nc_two_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
+    h = (b-a)/n #sub-interval size
+    sum = (1.5*(f(a)+f(b)))
+    for i in range(n-1):
+        x = a+float(i)*h
+        sum = sum + f(x)
+    sum = sum*h
+    return sum #output
+
+def nc_three_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
+    h = (b-a)/n #sub-interval size
+    c = (a+b)/2
+    sum = (1.3333333333*(2.0*f(a)-f(b)+2.0*f(c))) #decimal notation means answer loses some precision.
+    for i in range(n-1):
+        x = a+float(i)*h
+        sum = sum + f(x)
+    sum = sum*h
+    return sum #output
+
+def nc_four_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
+    h = (b-a)/n #sub-interval size
+    c = (a+b)/2
+    d = (a+c)/2
+    sum = (0.2083333333*(11.0*f(a)+f(b)+f(c)+11*f(d))) #decimal notation means answer loses some precision.
+    for i in range(n-1):
+        x = a+float(i)*h
+        sum = sum + f(x)
+    sum = sum*h
+    return sum #output
+
+def nc_five_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
+    h = (b-a)/n #sub-interval size
+    c = (a+b)/2
+    d = (a+c)/2
+    e = (c+b)/2
+    sum = (0.3*(11.0*f(a)-14*f(b)+26.0*f(c)-14*f(d)+11.0*f(e)))
+    for i in range(n-1):
+        x = a+float(i)*h
+        sum = sum + f(x)
+    sum = sum*h
+    return sum #output
+
+
+#the correct area under B on the interval [-2,2] is 5.333333333.
+#print trapezoid_uniform(b,-2.,2.,100) #obtain 5.340736
+#print nc_midpoint(b,-2.,2.,100) #obtain 5.3472
+#print nc_two_point(b,-2.,2.,100) #obtain 5.660736
+#print nc_three_point(b,-2.,2.,100) #obtain 5.394069
+#print nc_four_point(b,-2.,2.,100) #obtain 5.67240
+#print nc_five_point(b,-2.,2.,100) #obtain 5.000736
+
+#now need to test on f(x). Using the open interval (-1,1) to five decimal places.
+
+print trapezoid_uniform(f,-.99999,.99999,100) #returns 11.6929
+print nc_midpoint(f,-.99999,.99999,100) #returns 7.50016
+print nc_two_point(f,-.99999,.99999,100) #returns 20.637
+print nc_three_point(f,-.99999,.99999,100) #returns 13.2369
+print nc_four_point(f,-.99999,.99999,100) #returns 18.45815
+print nc_five_point(f,-.99999,.99999,100) #returns 3.3311
+
+#the five-point newton cote rule is the only appropriately close result to the true solution, 3.14159 (pi).
+#This is due to the inherit nature of the function itself. Moving along the function in either direction
+#leads to infinity. Adding additional points will no doubt then help in approximation. 
