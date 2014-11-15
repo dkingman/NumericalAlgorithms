@@ -14,8 +14,10 @@ from math import cos
 from math import atan
 from math import sin
 from math import pi
-from math import 
+from math import e
+from math import sqrt
 from numpy import array
+from numpy import zeros
 
 def eulersConstant():
     x = s = 1.0
@@ -542,7 +544,7 @@ for x in xi_2:
 
 
 def createA(n): #function to create matrix A
-    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    A = zeros((n,n), order='F') #declare an empty array of nxn dimension
     for i in range(n):
         for j in range(n):
              if j>=1:
@@ -578,7 +580,7 @@ print B
 #same happens on smaller scale. 
 
 def createA(n): #function to create matrix A
-    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    A = zeros((n,n), order='F') #declare an empty array of nxn dimension
     for i in range(n):
         for j in range(n):
              if j>=i:
@@ -608,7 +610,7 @@ print detA
 #here we obtain a determinant of 1677216.
 
 def createA(n): #function to create matrix A
-    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    A = zeros((n,n), order='F') #declare an empty array of nxn dimension
     for i in range(n):
         for j in range(n):
              A[i,j]= abs(i-j)
@@ -636,7 +638,7 @@ print detA
 #we see that there are zeros in the diagonal.
 
 def createA(n): #function to create matrix A
-    A = np.empty((n,n), order='F') #declare an empty array of nxn dimension
+    A = zeros((n,n), order='F') #declare an empty array of nxn dimension
     for i in range(n):
         for j in range(n):
              A[i,j]= -1+2*argmax([i,j])
@@ -646,7 +648,7 @@ A = createA(30)
 print A
 
 def createB(n): #function to create matrix B
-    B = np.empty((n,1), order='F') #declare an empty array of nxn dimension
+    B = zeros((n,1), order='F') #declare an empty array of nxn dimension
     for i in range(n):
         for j in range(n):
              B[i] = 1
@@ -754,7 +756,7 @@ print X
 
 
 def createHilbert(n): #define a function for creating Hilbert matrices.
-    H = np.empty((n, n), order='F') #declare an empty array of nxn dimension.
+    H = zeros((n, n), order='F') #declare an empty array of nxn dimension.
     for j in range(n):
         for i in range(n):
             H[i,j] = 1. / (i + j + 1) #formula for constructing matrix values.
@@ -770,7 +772,7 @@ H13 = createHilbert(13) #create 13x13 Hilbert matrix
 #print H13
 
 def createB(n): #function to create matrix b
-    H = np.empty((n, n), order='F') #declare an empty array of nxn dimension.
+    H = zeros((n, n), order='F') #declare an empty array of nxn dimension.
     for j in range(n):
         for i in range(n):
             H[i,j] = 1. / (i + j + 1) #formula for constructing matrix values.
@@ -2079,3 +2081,62 @@ print nc_five_point(f,-.99999,.99999,100) #returns 3.3311
 #the five-point newton cote rule is the only appropriately close result to the true solution, 3.14159 (pi).
 #This is due to the inherit nature of the function itself. Moving along the function in either direction
 #leads to infinity. Adding additional points will no doubt then help in approximation. 
+
+
+#Romberg Algorithm#
+
+#The romberg algorithm produces a triangular array of numbers, all of which are numerical estimates
+# of the definite integral of a function f(x) on the interval [a,b], where f(x) is continuous on [a,b].
+#the romberg algorithm itself is an application of Richardson extrapolation to each of the iterative trapezoid approximations.
+#This allows us to obtain a higher order extrapolation and thus a better result.
+
+
+def romberg(f,a,b,n): #r is an array, f is a function on [a,b], n = number of rows.
+    r = zeros((n,n), dtype='float') #declare an empty array of nxn dimension
+    h = (b-a)
+    r[0,0] = (h*0.5)*(f(a)+f(b)) #this works correctly.
+    for i in range(1,n): #(1,n)?
+        h = 0.5*h #takes previously calculated h and halves it.
+        sum = 0
+        for k in range(1,((2**i)-1),2):
+            sum = sum + f(a+k*h)
+        r[i,0] = 0.5*r[i-1,0]+(sum*h)
+        for j in range(1,i):
+            r[i,j] = (r[i,j-1]+((r[i,j-1]-r[i-1,j-1])/((4**j)-1)))
+    return r
+    
+    
+#Problem 5.2.2 and 5.2.3#
+
+def f(x):
+    return 4/(1+(x**2))
+
+print romberg(f,0,1,6)
+
+#let's test some other functions.
+
+def g(x):
+    return ((1+x)**(-1))
+
+def h(x):
+    return e**x
+
+def j(x):
+    return ((1+(x**2))**(-1))
+
+print romberg(g,0,1,6) #correct result is: 0.69314
+print romberg(h,0,1,6) #correct result is: 1.71828
+print romberg(j,0,1,6) #correct result is: 0.78539
+
+#let's try a bad function
+
+def k(x):
+    return sqrt(x)
+
+print romberg(k,0,1,6) #correct value is 0.66667.
+
+#k(x) is a bad function because the above algorithm can't handle estimation at the first endpoint, a=0.
+#The consequence is that instead of continuously approaching a more
+#accurate estimation of the integral, it instead passes the true value and the diverges further and further
+#from the true result.
+
