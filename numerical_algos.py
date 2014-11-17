@@ -2140,3 +2140,48 @@ print romberg(k,0,1,6) #correct value is 0.66667.
 #accurate estimation of the integral, it instead passes the true value and the diverges further and further
 #from the true result.
 
+#trapezoid integration method
+def trapint(f,a,b,n):
+    stepsize = (b - a) / float(n)
+    output = 0.5 *(f(a) + f(b))
+    for i in range(1, n):+
+    output += f(a + float(i) * stepsize)
+    output *= stepsize
+    return output
+
+
+f = lambda x: math.e**(-1.*x**2.)
+
+print trapint(f, 0., 1., 60)
+
+f = lambda x: (1. + x**2.)**-1.
+
+a = trapint(f, 0., 1., 2)
+
+print a
+
+print "actual value is atan(1), so the error is " + str(math.atan(1) - a)
+
+print "according to the error formula, the maximum error for this fxn is " + str(1./24.)
+
+
+#romberg algorithm
+def romberg(f, a, b, n):
+    h = b - a
+    r = [[(h/2.)*(f(a) + f(b))]]
+    for i in range(1, n+1):
+        h /= 2.
+        romsum = 0.
+        for k in range(1, 2**i, 2):
+            romsum += f(a + k * h)
+        r.append([0.5*r[i-1][0] + romsum * h])
+        for j in range(1,i + 1):
+            r[i].append(r[i][j-1] + (r[i][j-1] - r[i-1][j-1])/(4.**j - 1.))
+    return r
+
+f = lambda x: math.e**(-1.*x**2.)
+
+r = romberg(f, 0., 1., 5)
+
+print r 
+
