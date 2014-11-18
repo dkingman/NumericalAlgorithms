@@ -2098,10 +2098,10 @@ def romberg(f,a,b,n): #r is an array, f is a function on [a,b], n = number of ro
     for i in range(1,n): #(1,n)?
         h = 0.5*h #takes previously calculated h and halves it.
         sum = 0
-        for k in range(1,((2**i)-1),2):
+        for k in range(1,((2**i)),2):
             sum = sum + f(a+k*h)
         r[i,0] = 0.5*r[i-1,0]+(sum*h)
-        for j in range(1,i):
+        for j in range(1,i+1):
             r[i,j] = (r[i,j-1]+((r[i,j-1]-r[i-1,j-1])/((4**j)-1)))
     return r
     
@@ -2184,4 +2184,46 @@ f = lambda x: math.e**(-1.*x**2.)
 r = romberg(f, 0., 1., 5)
 
 print r 
+
+
+#Two point Gaussian Quadrature
+
+def two_pt_gauss(f,a,b,n):
+    h = (b-a)/n
+    #print h
+    sum = 0
+    for i in range(n):
+        x0 = a+(i*h) #starting at left end point, h represents step size.
+        #print x0
+        x1 = x0+(0.5*h)*(1-sqrt(1./3.))
+        #print x1
+        x2 = x0+(0.5*h)*(1+sqrt(1./3.))
+        #print x2
+        sum = sum + ((f(x1)+f(x2))) #weights are 1.
+        #print sum
+    sum = sum*(0.5*h)
+    return sum
+
+
+
+#Three point Gaussian Quadrature#
+
+def three_pt_gauss(f,a,b,n):
+    h = (b-a)/n
+    #print h
+    sum = 0
+    for i in range(n):
+        x0 = a+(i*h) #starting at left end point, h represents step size.
+        #print x0
+        x1 = x0+(0.5*h)*(1-sqrt(3./5.))
+        #print x1
+        x2 = x0+(0.5*h)
+        #print x2
+        x3 = x0+(0.5*h)*(1+sqrt(3./5.))
+        #print x3
+        sum = sum + (((5./9.)*f(x1))+((8./9.)*f(x2))+((5./9.)*f(x3))) #weights are 5/9, 8/9, and 5/9.
+        #print sum
+    sum = sum*(0.5*h) #this needs to be changed, pretty sure.
+    return sum
+
 
