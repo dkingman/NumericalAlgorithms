@@ -8,12 +8,13 @@ Main Topics:
 -Bisection Method
 -Newton's Method
 -Secant Method
--Polynomail Interpolation
+-Polynomial Interpolation
 -Linear Algebra (matrices)
 -First and Second derivatives
 -Trapazoid Method
 -Simpson's Method
--Romberg Algorithm (appl. of Richardson extrapolation)
+-Romberg Integration Algorithm (appl. of Richardson extrapolation)
+-Gaussian Quadrature (2 and 3 point integration)
 
 Other Topics:
 -Wilkinson function
