@@ -2002,85 +2002,68 @@ b = 5. * math.pi / 4.
 print simpson(f_4, a, b, 0, 5)
 
 
+
+#open Newton-Cotes Rules
+
+def nc_midpoint(f,a,b,n):
+    h = 0.5*(b-a) #midpoint
+    x1 = a+h #we need to move one step away from a. 
+    sum = 2.*h*f(x1) #formula
+    return sum
+
+def nc_two_point(f,a,b,n):
+    h = 0.3333333*(b-a) #divide interval by 3
+    x1 = a+h
+    x2 = a+2.*h #we need to move twice the step size away from a.
+    sum = 1.5*h*(f(x1)+f(x2)) #formula
+    return sum
+
+def nc_three_point(f,a,b,n):
+    h = 0.25*(b-a) #divide interval by 4
+    x1 = a+h #we need to move one step away from a. 
+    x2 = a+2.*h #we need to move twice the step size away from a.
+    x3 = a+3.*h #we need to move three times the step size away from a.
+    sum = 1.33333333*h*(2.*f(x1)-f(x2)+2.*f(x3)) #formula
+    return sum
+
+def nc_four_point(f,a,b,n):
+    h = 0.2*(b-a) #divide interval by 5
+    x1 = a+h #we need to move one step away from a. 
+    x2 = a+2.*h #we need to move twice the step size away from a.
+    x3 = a+3.*h #we need to move three times the step size away from a.
+    x4 = a+4.*h #we need to move four times the step size away from a.
+    sum = 0.208333333*h*(11.*f(x1)+f(x2)+f(x3)+11.*f(x4)) #formula
+    return sum
+
+def nc_five_point(f,a,b,n):
+    h = 0.1666666667*(b-a) #divide interval by 6
+    x1 = a+h #we need to move one step away from a. 
+    x2 = a+2.*h #we need to move twice the step size away from a.
+    x3 = a+3.*h #we need to move three times the step size away from a.
+    x4 = a+4.*h #we need to move four times the step size away from a.
+    x5 = a+5.*h #we need to move five times the step size away from a.
+    sum = 0.3*h*(11.*f(x1)-14.*f(x2)+26.*f(x3)-14.*f(x4)+11.*f(x5)) #formula
+    return sum
+
+
 #Problem 5.3.7
+
+#let's test the open Newton-Cotes rules. 
+
 def f(x): #to calculate the above function, we need an open interval (-1,1). There are asymptotes -1 and 1.
     return 1.0/((1.0-(x**2.0))**(0.5))
 
-def b(x):
-    return x**2
+print nc_midpoint(f,-1,1,10) #returns 2.0
+print nc_two_point(f,-1,1,10) #returns 2.12132010491
+print nc_three_point(f,-1,1,10) #returns 2.41253476298
+print nc_four_point(f,-1,1,10) #returns 2.46177011709
+print nc_five_point(f,-1,1,10) #returns 2.58176125023
 
-def nc_midpoint(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
-    h = (b-a)/n #sub-interval size
-    sum = (2.0*h*f(a))
-    for i in range(n):
-        x = a+float(i)*h
-        sum = sum + f(x)
-    sum = sum*h
-    return sum #output
+#The true result is 3.14159, or pi. You can see here that even with the five-point rule, we are still far away from
+#the true result. This is due to the nature of the function, which as vertical asymptotes at x=-1 and x=1.
+#Theoretically, adding additional points should improve the precision of the result, but this is impractical
+#given other methods of integration, such as Gaussian quadrature or Richardson extrapolation. 
 
-def nc_two_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
-    h = (b-a)/n #sub-interval size
-    sum = (1.5*(f(a)+f(b)))
-    for i in range(n-1):
-        x = a+float(i)*h
-        sum = sum + f(x)
-    sum = sum*h
-    return sum #output
-
-def nc_three_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
-    h = (b-a)/n #sub-interval size
-    c = (a+b)/2
-    sum = (1.3333333333*(2.0*f(a)-f(b)+2.0*f(c))) #decimal notation means answer loses some precision.
-    for i in range(n-1):
-        x = a+float(i)*h
-        sum = sum + f(x)
-    sum = sum*h
-    return sum #output
-
-def nc_four_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
-    h = (b-a)/n #sub-interval size
-    c = (a+b)/2
-    d = (a+c)/2
-    sum = (0.2083333333*(11.0*f(a)+f(b)+f(c)+11*f(d))) #decimal notation means answer loses some precision.
-    for i in range(n-1):
-        x = a+float(i)*h
-        sum = sum + f(x)
-    sum = sum*h
-    return sum #output
-
-def nc_five_point(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
-    h = (b-a)/n #sub-interval size
-    c = (a+b)/2
-    d = (a+c)/2
-    e = (c+b)/2
-    sum = (0.3*(11.0*f(a)-14*f(b)+26.0*f(c)-14*f(d)+11.0*f(e)))
-    for i in range(n-1):
-        x = a+float(i)*h
-        sum = sum + f(x)
-    sum = sum*h
-    return sum #output
-
-
-#the correct area under B on the interval [-2,2] is 5.333333333.
-#print trapezoid_uniform(b,-2.,2.,100) #obtain 5.340736
-#print nc_midpoint(b,-2.,2.,100) #obtain 5.3472
-#print nc_two_point(b,-2.,2.,100) #obtain 5.660736
-#print nc_three_point(b,-2.,2.,100) #obtain 5.394069
-#print nc_four_point(b,-2.,2.,100) #obtain 5.67240
-#print nc_five_point(b,-2.,2.,100) #obtain 5.000736
-
-#now need to test on f(x). Using the open interval (-1,1) to five decimal places.
-
-print trapezoid_uniform(f,-.99999,.99999,100) #returns 11.6929
-print nc_midpoint(f,-.99999,.99999,100) #returns 7.50016
-print nc_two_point(f,-.99999,.99999,100) #returns 20.637
-print nc_three_point(f,-.99999,.99999,100) #returns 13.2369
-print nc_four_point(f,-.99999,.99999,100) #returns 18.45815
-print nc_five_point(f,-.99999,.99999,100) #returns 3.3311
-
-#the five-point newton cote rule is the only appropriately close result to the true solution, 3.14159 (pi).
-#This is due to the inherit nature of the function itself. Moving along the function in either direction
-#leads to infinity. Adding additional points will no doubt then help in approximation. 
 
 
 #Romberg Algorithm#
@@ -2098,10 +2081,10 @@ def romberg(f,a,b,n): #r is an array, f is a function on [a,b], n = number of ro
     for i in range(1,n): #(1,n)?
         h = 0.5*h #takes previously calculated h and halves it.
         sum = 0
-        for k in range(1,((2**i)-1),2):
+        for k in range(1,((2**i)),2):
             sum = sum + f(a+k*h)
         r[i,0] = 0.5*r[i-1,0]+(sum*h)
-        for j in range(1,i):
+        for j in range(1,i+1):
             r[i,j] = (r[i,j-1]+((r[i,j-1]-r[i-1,j-1])/((4**j)-1)))
     return r
     
@@ -2136,9 +2119,7 @@ def k(x):
 print romberg(k,0,1,6) #correct value is 0.66667.
 
 #k(x) is a bad function because the above algorithm can't handle estimation at the first endpoint, a=0.
-#The consequence is that instead of continuously approaching a more
-#accurate estimation of the integral, it instead passes the true value and the diverges further and further
-#from the true result.
+
 
 #trapezoid integration method
 def trapint(f,a,b,n):
@@ -2185,3 +2166,55 @@ r = romberg(f, 0., 1., 5)
 
 print r 
 
+
+#Gaussian Quadrature
+#Two point Gaussian Quadrature
+
+def two_pt_gauss(f,a,b,n):
+    h = (b-a)/n
+    #print h
+    sum = 0
+    for i in range(n):
+        x0 = a+(i*h) #starting at left end point, h represents step size.
+        #print x0
+        x1 = x0+(0.5*h)*(1-sqrt(1./3.))
+        #print x1
+        x2 = x0+(0.5*h)*(1+sqrt(1./3.))
+        #print x2
+        sum = sum + ((f(x1)+f(x2))) #weights are 1.
+        #print sum
+    sum = sum*(0.5*h)
+    return sum
+
+
+
+#Three point Gaussian Quadrature#
+
+def three_pt_gauss(f,a,b,n):
+    h = (b-a)/n
+    #print h
+    sum = 0
+    for i in range(n):
+        x0 = a+(i*h) #starting at left end point, h represents step size.
+        #print x0
+        x1 = x0+(0.5*h)*(1-sqrt(3./5.))
+        #print x1
+        x2 = x0+(0.5*h)
+        #print x2
+        x3 = x0+(0.5*h)*(1+sqrt(3./5.))
+        #print x3
+        sum = sum + (((5./9.)*f(x1))+((8./9.)*f(x2))+((5./9.)*f(x3))) #weights are 5/9, 8/9, and 5/9.
+        #print sum
+    sum = sum*(0.5*h)
+    return sum
+
+
+def f(x):
+    return x**5
+
+print two_pt_gauss(f,0.,1.,10) #result is 1.66665277778
+print three_pt_gauss(f,0.,1.,10) #result is 1.66666666667
+
+#You can see here that using Gaussian Quadrature feels like cheating, almost. With so little computation,
+#we can approximate the area under the curve (i.e. integrate) with a, compared to other methods, very high
+#amount of accuracy. Using n=10 and three_pt_gauss, we obtain the true result.
