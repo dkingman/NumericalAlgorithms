@@ -11,7 +11,7 @@ Main Topics:
 -Polynomial Interpolation
 -Linear Algebra (matrices)
 -First and Second derivatives
--Trapazoid Method
+-Trapezoid Method
 -Simpson's Method
 -Romberg Integration Algorithm (appl. of Richardson extrapolation)
 -Gaussian Quadrature (2 and 3 point integration)
