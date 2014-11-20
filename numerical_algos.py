@@ -11,6 +11,7 @@ import math
 import copy
 from numarray import argmax
 from math import cos
+from math import tan
 from math import atan
 from math import sin
 from math import pi
@@ -1925,7 +1926,7 @@ calc_low_highs(f_9, low_high)
 def trapezoid_uniform(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
     h = (b-a)/n #sub-interval size
     sum = 0.5*(f(a)+f(b))
-    for i in range(n-1):
+    for i in range(1,n):
         x = a+float(i)*h
         sum = sum + f(x)
     sum = sum*h
@@ -1943,16 +1944,46 @@ def function3(x):
     return atan(x)
    
     
-print trapezoid_uniform(function1,0.,pi,100) #answer is 2, we have 1.99884870579.
-print trapezoid_uniform(function2,0.,1.,100) #answer is 1.7828, we have 1.70138380273.
-print trapezoid_uniform(function3,0.,1.,100) #answer is 0.438825, we have 0.431016675615.
+print trapezoid_uniform(function1,0.,pi,20000) #answer is 2, we have 1.99999999589
+print trapezoid_uniform(function2,0.,1.,20000) #answer is 1.7828, we have 1.71828182882
+print trapezoid_uniform(function3,0.,1.,20000) #answer is 0.438825, we have 0.438824573013
+
+#trapazoid method, while generally affective, does not estimate the area under f(x)=e^x well. This is due to the
+#exponentially increasing nature of the function. The higher the magnitude of the slope, the more error we can
+#expect from using the trapezoid method.
+
+#Gaussian probability integral
+def f1(x):
+    return e**-(x**2)
+
+def f1b(t):
+    return (1/t)*e**-(log(t))**2
+
+#sine integral
+def f2(x):
+    return sin(x)/x
+
+def f2b(t):
+    return sin(1/t)/t
+
+#Fresnel sine integral
+def f3(x):
+    return sin(x**2)
+
+def f3b(t):
+    return sin(tan(t)**2)/(cos(t)**2)
+
+print trapezoid_uniform(f1,0.,200.,20000) #0.896226925453
+print trapezoid_uniform(f1b,(10.**-10.),1.,20000) #returns 0.886176922744, which is close to the x-form.
+
+print trapezoid_uniform(f2,(10.**-10.),200.,20000) #returns 1.56842626819, the correct result is 1.57
+print trapezoid_uniform(f2b,(10.**-10.),200.,20000) #returns -24375299.9242
+
+print trapezoid_uniform(f3,0.,200.,20000) #returns 0.631141945821, which is close to the true result of 0.626657
+print trapezoid_uniform(f3b,0.,((0.5*pi)-(10.**-10.)),20000) #returns -3.84967571979e+15.
 
 
-
-
-
-
-
+#______________#
 
 def simpson(f, a, b, level, level_max, p=1e-5):
     level += 1
@@ -2119,6 +2150,9 @@ def k(x):
 print romberg(k,0,1,6) #correct value is 0.66667.
 
 #k(x) is a bad function because the above algorithm can't handle estimation at the first endpoint, a=0.
+#The result of that is that we need a far greater n to approach the solution than with other functions.
+#increasing to n=20 allows us to approach the solution. This isn't ideal though... Increasing n even more
+#slows down the algorithm immensely and, subsequently, a very large matrix is needed to store the result.
 
 
 #trapezoid integration method
