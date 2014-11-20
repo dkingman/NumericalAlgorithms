@@ -19,6 +19,16 @@ from math import e
 from math import sqrt
 from numpy import array
 from numpy import zeros
+from numpy import linalg
+
+def tri_point_area(x1,x2,x3,y1,y2,y3):
+    A = [[x1,y1,1.],[x2,y2,1.],[x3,y3,1.]] #put vector of x's, vector of y's, and vector of 1's as columns in 3x3 matrix.
+    #print A
+    area = 0.5*abs(linalg.det(A))
+    return area
+
+print tri_point_area(-1.,0.,1.,0.,1.,0.)
+
 
 def eulersConstant():
     x = s = 1.0
@@ -556,6 +566,19 @@ def createA(n): #function to create matrix A
 
 A = createA(25)
 #print A
+
+def transpose_matrix(A): #where A is a matrix
+    AT = []
+    for i in range(len(A[0])):
+        line = []
+        for j in range(len(A)):
+            line.append(A[j][i])
+        AT.append(line)
+    return AT #returns a transposed matrix.
+
+A = [[1,2,3],[4,5,6]]
+print transpose_matrix(A)
+
 
 def det(a):
     n = len(a)
