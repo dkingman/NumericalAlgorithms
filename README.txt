@@ -17,6 +17,7 @@ Main Topics:
 -Gaussian Quadrature (2 and 3 point integration)
 
 Other Topics:
+-Area of triangle (using points)
 -Wilkinson function
 -Calculation of Chebyshev nodes
 -Hilbert matrices
