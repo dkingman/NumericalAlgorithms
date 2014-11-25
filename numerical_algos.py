@@ -2275,3 +2275,50 @@ print three_pt_gauss(f,0.,1.,10) #result is 1.66666666667
 #You can see here that using Gaussian Quadrature feels like cheating, almost. With so little computation,
 #we can approximate the area under the curve (i.e. integrate) with a, compared to other methods, very high
 #amount of accuracy. Using n=10 and three_pt_gauss, we obtain the true result.
+
+
+#Runge-Kutta#
+
+#The Runge-Kutta method imitate the Taylor series method without requiring analytic differentiation of the
+# original differential equation. Therefore, the below algorithms will accept any function, interval, and given point
+# and will represent the solution to an ODE locally at the given point. This method works provided we now the
+#value exactly at some arbitrary t.
+
+#Runge-Kutta of order 2.
+def runge_kutta_2(f,x,a,b,n):
+    h = (b-a)/n #step size
+    t = a #sets the initial t as the left-most point of the interval, a.
+    ta = t
+    for j in range(1,n+1):
+        k1 = h*f(t,x)
+        k2 = h*f(t+h,x+k1)
+        x = x+0.5*(k1+k2)
+        t = ta+(j*h)
+        print [j,t,x]
+
+
+#Runge-Kutta method of order 4.
+def runge_kutta_4(f,x,a,b,n):
+    h = (b-a)/n #step size
+    t = a #sets the initial t as the left-most point of the interval, a.
+    ta = t
+    for j in range(1,n+1):
+        k1 = h*f(t,x)
+        k2 = h*f(t+0.5*h,x+0.5*k1)
+        k3 = h*f(t+0.5*h,x+0.5*k2)
+        k4 = h*f(t+h,x+k3)
+        x = x+((1./6.)*(k1+2.*k2+2.*k3+k4))
+        t = ta+(j*h)
+        print [j,t,x]
+
+
+def f(t,x):
+    return 2+((x-t-1)**2)
+
+
+#let's evaluate the function from [1,1.5625], where x(1)=2, with n=72.
+print runge_kutta_2(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192942728232579
+print runge_kutta_4(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
+
+#The local truncation error of the fourth order Runge-Kutta algorithm is the fifth order.
+
