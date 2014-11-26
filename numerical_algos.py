@@ -2312,6 +2312,31 @@ def runge_kutta_4(f,x,a,b,n):
         print [j,t,x]
 
 
+#Runge-Kutta method of order 4 that also plots.
+def runge_kutta_4_plot(f,x,a,b,n):
+    h = (b-a)/n #step size
+    t = a #sets the initial t as the left-most point of the interval, a.
+    ta = t
+    jstore = [] #empty list to store j values
+    tstore = [] #empty list to store t values
+    xstore = [] #empty list to store x values
+    for j in range(1,n+1):
+        k1 = h*f(t,x)
+        k2 = h*f(t+0.5*h,x+0.5*k1)
+        k3 = h*f(t+0.5*h,x+0.5*k2)
+        k4 = h*f(t+h,x+k3)
+        x = x+((1./6.)*(k1+2.*k2+2.*k3+k4))
+        t = ta+(j*h)
+        print [j,t,x]
+        jstore.append(j)
+        tstore.append(t)
+        xstore.append(x)
+    plt.plot(xstore,tstore)
+    plt.xlabel('x')
+    plt.ylabel('t')
+    plt.show()
+
+
 def f(t,x):
     return 2+((x-t-1)**2)
 
@@ -2319,6 +2344,7 @@ def f(t,x):
 #let's evaluate the function from [1,1.5625], where x(1)=2, with n=72.
 print runge_kutta_2(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192942728232579
 print runge_kutta_4(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
+print runge_kutta_4_plot(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
 
 #The local truncation error of the fourth order Runge-Kutta algorithm is the fifth order.
 
