@@ -15,7 +15,7 @@ Main Topics:
 -Simpson's Method
 -Romberg Integration Algorithm (appl. of Richardson extrapolation)
 -Gaussian Quadrature (2 and 3 point integration)
--Runge-Kutta Algorithms (order 2 and 3)
+-Runge-Kutta Algorithms (order 2 and 4)
 
 Other Topics:
 -Area of triangle (using points)
