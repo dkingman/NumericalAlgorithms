@@ -23,3 +23,4 @@ Other Topics:
 -Calculation of Chebyshev nodes
 -Hilbert matrices
 -Additional Newton-Cotes rules
+-Jacobian Matrix Evaluation in R2 and R3
