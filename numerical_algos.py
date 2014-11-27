@@ -9,6 +9,7 @@ Created on Tue Jan 29 23:14:17 2013
 
 import math
 import copy
+import matplotlib.pyplot as plt
 from numarray import argmax
 from math import cos
 from math import tan
@@ -2280,9 +2281,11 @@ print three_pt_gauss(f,0.,1.,10) #result is 1.66666666667
 #Runge-Kutta#
 
 #The Runge-Kutta method imitate the Taylor series method without requiring analytic differentiation of the
-# original differential equation. Therefore, the below algorithms will accept any function, interval, and given point
-# and will represent the solution to an ODE locally at the given point. This method works provided we now the
-#value exactly at some arbitrary t.
+#original differential equation. Therefore, the below algorithms will accept any function, interval, and given point
+#and will represent the solution to an ODE locally at the given point. This method works provided we now the
+#value exactly at some arbitrary t. The downside of these methods is that they have to evaluate the function f several times,
+#which can be very time consuming depending on the function.
+
 
 # Runge-Kutta of order 2.
 def runge_kutta_2(f, x, a, b, n):
@@ -2348,3 +2351,94 @@ print runge_kutta_4_plot(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obt
 
 #The local truncation error of the fourth order Runge-Kutta algorithm is the fifth order.
 
+
+
+#Jacobian Matrix Evaluation#
+
+#given two (or three) functions with respect to x and y (and z), calculates the determinant of the Jacobian matrix at a given point (xi,yi).
+#useful in characterizing local behavior of nonlinear system about an equilibrium point, i.e. linearization.
+
+#fx,fy,gx,gy are functions f and g with respect to x and y
+#xi,yi are points of which to evaluate the Jacobian
+
+def jacobian_eval_R2(fx,fy,gx,gy,xi,yi):
+    a = fx(xi,yi)
+    b = fy(xi,yi)
+    c = gx(xi,yi)
+    d = gy (xi,yi)
+    Jcomplete = [[a,b],[c,d]]
+    return linalg.det(Jcomplete)
+
+def jacobian_eval_R3(fx,fy,fz,gx,gy,gz,hx,hy,hz,xi,yi,zi):
+    a = fx(xi,yi,zi)
+    b = fy(xi,yi,zi)
+    c = fz(xi,yi,zi)
+    d = gx(xi,yi,zi)
+    e = gy(xi,yi,zi)
+    f = gz(xi,yi,zi)
+    g = hx(xi,yi,zi)
+    h = hy(xi,yi,zi)
+    i = hz(xi,yi,zi)
+    Jcomplete = [[a,b,c],[d,e,f],[g,h,i]]
+    return linalg.det(Jcomplete)
+
+#test functions for R2
+def f(x,y):
+    return 2*x*(y**3)
+
+def g(x,y):
+    return y*(x**2)
+
+def fx(x,y):
+    return 2*(y**3)
+
+def fy(x,y):
+    return 6*x*(y**2)
+
+def gx(x,y):
+    return 2*x*y
+
+def gy(x,y):
+    return x**2
+
+print jacobian_eval_R2(fx,fy,gx,gy,1.,1.)
+
+
+#test functions for R3
+def f3(x,y,z):
+    return 2*x*(y**3)*z
+
+def g3(x,y,z):
+    return y*(x**2)*(z**4)
+
+def h3(x,y,z):
+    return (y**4)*(z**3)
+
+def fx3(x,y,z):
+    return 2*(y**3)*z
+
+def fy3(x,y,z):
+    return 6*x*(y**2)*z
+
+def fz3(x,y,z):
+    return 2*x*(y**3)
+
+def gx3(x,y,z):
+    return 2*x*y*(z**4)
+
+def gy3(x,y,z):
+    return x**2*(z**4)
+
+def gz3(x,y,z):
+    return 4*(z**3)*y*(x**2)
+
+def hx3(x,y,z):
+    return 0
+
+def hy3(x,y,z):
+    return 4*(y**3)*(z**3)
+
+def hz3(x,y,z):
+    return 3*(z**2)*(y**4)
+
+print jacobian_eval_R3(fx3,fy3,fz3,hx3,gy3,gz3,hx3,hy3,hz3,1.,1.,1.)
