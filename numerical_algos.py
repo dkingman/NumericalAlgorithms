@@ -2352,6 +2352,23 @@ print runge_kutta_4_plot(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obt
 #The local truncation error of the fourth order Runge-Kutta algorithm is the fifth order.
 
 
+#convert polar coordinates to Cartesian coordinates#
+
+# Ask the user for the values of r and theta
+r = float(input("Enter r: "))
+d = float(input("Enter theta in degrees: "))
+
+# Convert the angle to radians
+theta = d*pi/180
+
+# Calculate the equivalent Cartesian coordinates
+x = r*cos(theta)
+y = r*sin(theta)
+
+# Print out the results
+print("x = ",x,", y = ",y)
+
+
 
 #Jacobian Matrix Evaluation#
 
