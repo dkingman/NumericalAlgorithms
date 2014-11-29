@@ -23,4 +23,6 @@ Other Topics:
 -Calculation of Chebyshev nodes
 -Hilbert matrices
 -Additional Newton-Cotes rules
+-Convert polar coordinates to Cartesian coordinates
+-Print a Fibonacci sequence
 -Jacobian Matrix Evaluation in R2 and R3
