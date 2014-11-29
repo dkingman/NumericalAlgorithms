@@ -2388,7 +2388,7 @@ def jacobian_eval_R2(fx,fy,gx,gy,xi,yi):
     a = fx(xi,yi)
     b = fy(xi,yi)
     c = gx(xi,yi)
-    d = gy (xi,yi)
+    d = gy(xi,yi)
     Jcomplete = [[a,b],[c,d]]
     return linalg.det(Jcomplete)
 
