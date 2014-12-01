@@ -2286,17 +2286,20 @@ print three_pt_gauss(f,0.,1.,10) #result is 1.66666666667
 #value exactly at some arbitrary t. The downside of these methods is that they have to evaluate the function f several times,
 #which can be very time consuming depending on the function.
 
+#f denotes the function, x denotes the initial point, a and b denote the beginning and end of the interval, n denotes number of iterations.
+
+#NOTE: if you wish to plot two functions, you must do so seperately.
+#Plot one function, terminate the function, then plot the other.
 
 # Runge-Kutta of order 2.
 def runge_kutta_2(f, x, a, b, n):
     h = (b - a) / n  # step size
     t = a  # sets the initial t as the left-most point of the interval, a.
-    ta = t
     for j in range(1, n + 1):
         k1 = h * f(t, x)
         k2 = h * f(t + h, x + k1)
         x = x + 0.5 * (k1 + k2)
-        t = ta + (j * h)
+        t = a + (j * h)
         print [j, t, x]
 
 
@@ -2304,14 +2307,13 @@ def runge_kutta_2(f, x, a, b, n):
 def runge_kutta_4(f, x, a, b, n):
     h = (b - a) / n  # step size
     t = a  # sets the initial t as the left-most point of the interval, a.
-    ta = t
     for j in range(1, n + 1):
         k1 = h * f(t, x)
         k2 = h * f(t + 0.5 * h, x + 0.5 * k1)
         k3 = h * f(t + 0.5 * h, x + 0.5 * k2)
         k4 = h * f(t + h, x + k3)
         x = x + ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
-        t = ta + (j * h)
+        t = a + (j * h)
         print [j, t, x]
 
 
@@ -2319,8 +2321,7 @@ def runge_kutta_4(f, x, a, b, n):
 def runge_kutta_4_plot(f, x, a, b, n):
     h = (b - a) / n  # step size
     t = a  # sets the initial t as the left-most point of the interval, a.
-    ta = t
-    jstore = []  # empty list to store j values
+    jstore = []  # empty list to store j values. Not strictly necessary for plotting but may be useful.
     tstore = []  # empty list to store t values
     xstore = []  # empty list to store x values
     for j in range(1, n + 1):
@@ -2329,27 +2330,63 @@ def runge_kutta_4_plot(f, x, a, b, n):
         k3 = h * f(t + 0.5 * h, x + 0.5 * k2)
         k4 = h * f(t + h, x + k3)
         x = x + ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
-        t = ta + (j * h)
+        t = a + (j * h)
         print [j, t, x]
         jstore.append(j)
         tstore.append(t)
         xstore.append(x)
-    plt.plot(xstore, tstore)
-    plt.xlabel('x')
-    plt.ylabel('t')
+    plt.plot(tstore, xstore)
+    plt.xlabel('t')
+    plt.ylabel('x')
     plt.show()
 
 
-def f(t,x):
-    return 2+((x-t-1)**2)
+# test function given in book.
+def f(t, x):
+    return 2 + ((x - t - 1) ** 2)
 
 
 #let's evaluate the function from [1,1.5625], where x(1)=2, with n=72.
-print runge_kutta_2(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192942728232579
-print runge_kutta_4(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
-print runge_kutta_4_plot(f,2.,1.,1.5625,72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
+print runge_kutta_2(f, 2., 1., 1.5625, 72)
+print runge_kutta_4(f , 2., 1., 1.5625, 72)
+print runge_kutta_4_plot(f, 2., 1., 1.5625, 72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
 
-#The local truncation error of the fourth order Runge-Kutta algorithm is the fifth order.
+def g(t, x):
+    return -2. * t
+
+#print runge_kutta_4(g,1.,0.,e,100) #we obtain -6.3890560989306495, correct result is = -6.3890560989
+print runge_kutta_4_plot(g, 1., 0., e, 100)
+
+def f(t, x):  # the function sin(t)/t is not defined at t==0, so we must specify a value at t==0.
+    if t == 0:
+        return 1.
+    else:
+        return sin(t) / t
+
+print runge_kutta_4(f, 0., 0., 1., 100)  #(1-0)/100 = 0.01 so step size is as the problem specifies. Result = 0.9460830703677978. Correct result is 0.9460830703.
+
+def f(t, x):
+    return (2. / sqrt(pi)) * (e ** (-t ** 2.))
+
+# let's approximate this by g(t0, t2, n) and see how close it is to our RK4 approximation.
+
+def g(t0, t2, n):
+    h = (t2 - t0) / n
+    for j in range(1, n + 1):
+        t = t0 + (j * h)
+        a = 0.3084284
+        b = -0.0849713
+        c = 0.6627698
+        y = (1. + (0.47047 * t)) ** (-1.)
+        x = 1. - ((a * y) + (b * (y ** 2.)) + (c * (y ** 3.))) * ((2. / sqrt(pi)) * (e ** (-t ** 2.)))
+        print [j, t, x]
+
+
+print runge_kutta_4(f, 0., 0., 2., 100)  #result is 0.9953222649730256
+print g(0., 2., 100)  #result is 0.9953087431727834.
+
+#so our RK4(f(t,x)) and g(t0,t2,n) evaluations differ by 0.0001352 at 2.
+#The g(t0,t2,n) function is a reasonably good approximation of our complicated f(t,x) function.
 
 
 #convert polar coordinates to Cartesian coordinates#
