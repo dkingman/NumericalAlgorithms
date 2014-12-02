@@ -2502,3 +2502,27 @@ def hz3(x,y,z):
     return 3*(z**2)*(y**4)
 
 print jacobian_eval_R3(fx3,fy3,fz3,hx3,gy3,gz3,hx3,hy3,hz3,1.,1.,1.)
+
+#here's my rk4 function, it seems to work well
+def rk4(yp, y, a, b, n):
+    h = (b - a) / float(n)
+    xlist = [a]
+    ylist = [y]
+    for i in range(1, n + 1):
+        k1 = h * yp(xlist[i-1], ylist[i-1])
+        k2 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k1)
+        k3 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k2)
+        k4 = h * yp(xlist[i-1] + h, ylist[i-1] + k3)
+        ylist.append(ylist[i-1] + (1. / 6.)*(k1 + 2. * (k2 + k3) + k4))
+        xlist.append(a + i * h)
+    return xlist, ylist
+    
+yp = lambda x, y: 2. + (y - x - 1) ** 2.
+y = 2.
+a = 1.
+b = 1.5625
+n = 72
+
+x, y = rk4(yp, y, a, b, n)
+
+plt.plot(x, y)
