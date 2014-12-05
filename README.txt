@@ -9,7 +9,7 @@ Main Topics:
 -Newton's Method
 -Secant Method
 -Polynomial Interpolation
--Linear Algebra (matrices)
+-Linear Algebra (matrices, Gaussian elimination, Cramer's Rule)
 -First and Second derivatives
 -Trapezoid Method
 -Simpson's Method
@@ -18,6 +18,7 @@ Main Topics:
 -Runge-Kutta Algorithms (order 2 and 4)
 
 Other Topics:
+-Distance between two points
 -Area of triangle (using points)
 -Wilkinson function
 -Calculation of Chebyshev nodes
