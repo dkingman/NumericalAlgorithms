@@ -22,6 +22,17 @@ from numpy import array
 from numpy import zeros
 from numpy import linalg
 
+#distance between two points. Can easily extend to R^n. 
+def point_distance_R2(x1, y1, x2, y2):
+    return sqrt(((x2 - x1) ** 2.) + ((y2 - y1) ** 2.))
+
+def point_distance_R3(x1, y1, z1, x2, y2, z2):
+    return sqrt(((x2 - x1) ** 2.) + ((y2 - y1) ** 2.) + ((z2 - z1) ** 2.))
+
+print point_distance_R2(0., 1., 1., 0.) #Pythagorean Theorem tells us this is the correct result.
+print point_distance_R3(1., 2., 3., 3., 2., 1.) #correct according to Wolfram Alpha
+
+#area of a triangle using points
 def tri_point_area(x1,x2,x3,y1,y2,y3):
     A = [[x1,y1,1.],[x2,y2,1.],[x3,y3,1.]] #put vector of x's, vector of y's, and vector of 1's as columns in 3x3 matrix.
     #print A
@@ -552,9 +563,7 @@ for x in xi_2:
     real = func_2(x)
     print "{: 1.12f}".format(real - approx)
 
-
-
-
+#######
 def createA(n): #function to create matrix A
     A = zeros((n,n), order='F') #declare an empty array of nxn dimension
     for i in range(n):
@@ -929,6 +938,41 @@ print X3
 
 #The computer is highly prone to error because the values it is computing are very small... i.e. the differences are tiny.
 #The error compounds as the size of the Hilbert matrix increases.
+
+#Cramer'srule for finding coefficients of linear systems.
+
+#We have the system Ax=b, where A is an nxn matrix and b is an 1xn matrix. There are several ways to solve the system,
+#but the algorithm below evaluates x1, x2, ..., xn using Cramer's Rule.
+
+def cramers_rule_R2(a1, a2, a3, a4, b1, b2):
+    A = [[a1, a2], [a3, a4]]
+    if linalg.det(A) == 0:
+        print "Cramer's rule does not apply."
+    else:
+        A1 = [[b1, a2], [b2, a4]]  #replace the first column with the matrix b.
+        A2 = [[a1, b1], [a3, b2]]  #replace the second column with the matrix b.
+        x1 = linalg.det(A1) / linalg.det(A)
+        x2 = linalg.det(A2) / linalg.det(A)
+        return [x1, x2]
+
+def cramers_rule_R3(a1, a2, a3, a4, a5, a6, a7, a8, a9, b1, b2, b3):
+    A = [[a1, a2, a3], [a4, a5, a6], [a7, a8, a9]]
+    if linalg.det(A) == 0:
+        print "Cramer's rule does not apply."
+    else:
+        A1 = [[b1, a2, a3], [b2, a5, a6], [b3, a8, a9]]  #replace the first column with the matrix b.
+        A2 = [[a1, b1, a3], [a4, b2, a6], [a7, b3, a9]]  #replace the second column with the matrix b.
+        A3 = [[a1, a2, b1], [a4, a5, b2], [a7, a8, b3]]  #replace the third column with the matrix b.
+        x1 = linalg.det(A1) / linalg.det(A)
+        x2 = linalg.det(A2) / linalg.det(A)
+        x3 = linalg.det(A3) / linalg.det(A)
+        return [x1, x2, x3]
+
+print cramers_rule_R2(7., -2., 3., 1., 3., 5.)
+print cramers_rule_R3(1., 0., 2., -3., 4., 6., -1., -2., 3., 6., 30., 8.)
+
+
+#Polynomial Interpolation
 
 #calculates coefficients for polynomial interpolation
 def coef(x,y):
