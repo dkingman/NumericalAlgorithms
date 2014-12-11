@@ -2342,7 +2342,7 @@ def runge_kutta_2(f, x, a, b, n):
     for j in range(1, n + 1):
         k1 = h * f(t, x)
         k2 = h * f(t + h, x + k1)
-        x = x + 0.5 * (k1 + k2)
+        x += 0.5 * (k1 + k2)
         t = a + (j * h)
         print [j, t, x]
 
@@ -2356,7 +2356,7 @@ def runge_kutta_4(f, x, a, b, n):
         k2 = h * f(t + 0.5 * h, x + 0.5 * k1)
         k3 = h * f(t + 0.5 * h, x + 0.5 * k2)
         k4 = h * f(t + h, x + k3)
-        x = x + ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
+        x += ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
         t = a + (j * h)
         print [j, t, x]
 
@@ -2373,7 +2373,7 @@ def runge_kutta_4_plot(f, x, a, b, n):
         k2 = h * f(t + 0.5 * h, x + 0.5 * k1)
         k3 = h * f(t + 0.5 * h, x + 0.5 * k2)
         k4 = h * f(t + h, x + k3)
-        x = x + ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
+        x += ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
         t = a + (j * h)
         print [j, t, x]
         jstore.append(j)
@@ -2435,7 +2435,7 @@ def runge_kutta_fehlberg(f, x, a, b, n, adaptive):
         k5 = h * f(t + h, x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
         k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
         x4 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a5 * k5))
-        x = x + ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6))
+        x += ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6))
         t = a + (j * h)
         er = abs(x - x4)
         if adaptive == 1:
@@ -2476,9 +2476,65 @@ def runge_kutta_bogacki_shampine(f, x, a, b, n, adaptive):
         k3 = h * f(t + (c30 * h), x + (c32 * k2))
         k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
         x3 = x + ((a1 * k1) + (a2 * k2) + (a3 * k3))
-        x = x + ((b1 * k1) + (b2 * k2) + (b3 * k3) + (b4 * k4))
+        x += ((b1 * k1) + (b2 * k2) + (b3 * k3) + (b4 * k4))
         t = a + (j * h)
         er = abs(x - x3)
+        if adaptive == 1:
+            erstore.append(er)
+        print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The Cash-Karp Runge-Kutta method uses six function evaluations to calculate fourth and fifth order accurate solutions.
+#The difference between these solutions is then taken to be the error of the fourth order solution. 
+
+def runge_kutta_cash_karp(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that a2 == a5 == b2 == 0..
+    #using long format to increase accuracy of estimation.
+    c20 = long(1. / 5.)
+    c21 = long(1. / 5.)
+    c30 = long(3./ 10.)
+    c31 = long(3./ 40.)
+    c32 = long(9./ 40.)
+    c40 = long(3. / 5.)
+    c41 = long(3. / 10.)
+    c42 = long(-9. / 10.)
+    c43 = long(6. / 5.)
+    c50 = long(1.)
+    c51 = long(-11. / 54.)
+    c52 = long(5. / 2.)
+    c53 = long(-70. / 27.)
+    c54 = long(35. / 27.)
+    c60 = long(7. / 8.)
+    c61 = long(1631. / 55296.)
+    c62 = long(175. / 512.)
+    c63 = long(575. / 13824.)
+    c64 = long(44275. / 110592.)
+    c65 = long(253. / 2096.)
+    a1 = long(37. / 378.)
+    a3 = long(250. / 621.)
+    a4 = long(125. / 594.)
+    a6 = long(512. / 1771.)
+    b1 = 2825. / 27648.
+    b3 = 18575. / 48384.
+    b4 = 13525. / 55296.
+    b5 = 277. / 14336.
+    b6 = 1. / 4.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c31 * k1) + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        k5 = h * f(t + (c50 * h), x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
+        k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
+        x4 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a6 * k6))
+        x += (b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6)
+        t = a + (j * h)
+        er = abs(x - x4)
         if adaptive == 1:
             erstore.append(er)
         print [j, t, x, er]
@@ -2546,7 +2602,7 @@ def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
         k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
         k7 = h * f(t + (c70 * h), x + (c71 * k1) + (c73 * k3) + (c74 * k4) + (c75 * k5) + (c76 * k6))
         x5 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a5 * k5))
-        x = x + ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6) + (b7 * k7))
+        x += ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6) + (b7 * k7))
         t = a + (j * h)
         er = abs(x - x5)
         if adaptive == 1:
@@ -2558,13 +2614,29 @@ def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
 
 # test function given in book.
 def f(t, x):
-    return 2 + ((x - t - 1) ** 2)
+    return 2. + ((x - t - 1.) ** 2.)
 
+#another test function
+def g(t,x):
+    return 3. + (5 * sin(t)) + (0.2 * x)
 
-#let's evaluate the function from [1,1.5625], where x(1)=2, with n=72.
+#tests using f(t,x):
 print runge_kutta_2(f, 2., 1., 1.5625, 72)
-print runge_kutta_4(f , 2., 1., 1.5625, 72)
-print runge_kutta_4_plot(f, 2., 1., 1.5625, 72) #x(1.5625)=3.192937699------. We obtain 3.192937673837072
+print runge_kutta_4(f, 2., 1., 1.5625, 72) #returns 3.192937673837072
+print runge_kutta_4_plot(f, 2., 1., 1.5625, 72) #same as above
+print runge_kutta_fehlberg(f, 2., 1., 1.5625, 72, 0) #returns 3.21488255297631
+print runge_kutta_bogacki_shampine(f, 2., 1., 1.5625, 72, 0) #returns 3.1907582960278154
+print runge_kutta_cash_karp(f, 2., 1., 1.5625, 72, 0 #returns 3.192865860211696)
+print runge_kutta_dormand_prince(f, 2., 1., 1.5625, 72, 0) #returns 3.19079031694774
+
+#tests using g(t,x):
+print runge_kutta_2(g, 0., 0., 10., 1000)
+print runge_kutta_4(g, 0., 0., 10., 1000) #returns 135.91724460992168.
+print runge_kutta_4_plot(g, 0., 0., 10., 1000) #same as above
+print runge_kutta_fehlberg(g, 0., 0., 10., 100000, 0) #returns 135.93269120019045.
+print runge_kutta_bogacki_shampine(g, 0., 0., 10., 100000, 0) #returns 135.91374364421674
+print runge_kutta_cash_karp(g, 0., 0., 10., 100000, 0) #returns 135.91543072388197
+print runge_kutta_dormand_prince(g, 0., 0., 10., 100000, 0) #returns 135.91373784394202
 
 def g(t, x):
     return -2. * t
@@ -2602,9 +2674,6 @@ print g(0., 2., 100)  #result is 0.9953087431727834.
 
 #so our RK4(f(t,x)) and g(t0,t2,n) evaluations differ by 0.0001352 at 2.
 #The g(t0,t2,n) function is a reasonably good approximation of our complicated f(t,x) function.
-
-
-
 
 
 
