@@ -2384,6 +2384,177 @@ def runge_kutta_4_plot(f, x, a, b, n):
     plt.ylabel('x')
     plt.show()
 
+#For the Runge-Method of order 5 given below,
+#the difference between the values of x(t+h) obtained from the 4th and 5th order procedures is an estimate of the
+#local truncation error in the 4th order procedure. Therefore, evaluations give a 5th order approximation,
+#together with an error estimate. This method is called the Runge-Kutta-Fehlberg method
+
+#adaptive (enter 1 for yes, 0 for no) is a toggle to store error values needed in the adaptive Runge-Kutta method.
+
+# Runge-Kutta method of order 5.
+def runge_kutta_fehlberg(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that a2 == b2 == 0.
+    #using long format to increase accuracy of estimation.
+    c20 = long(0.25)
+    c21 = long(0.25)
+    c30 = long(0.375)
+    c31 = long(0.09375)
+    c32 = long(0.28125)
+    c40 = long(12. / 13.)
+    c41 = long(1932. / 2197.)
+    c42 = long(7200. / 2197.)
+    c43 = long(7296. / 2197.)
+    c51 = long(439. / 216.)
+    c52 = long(-8.)
+    c53 = long(3680. / 513.)
+    c54 = long(-845. / 4104.)
+    c60 = long(0.5)
+    c61 = long(-8. / 27.)
+    c62 = long(2.)
+    c63 = long(-3544. / 2565.)
+    c64 = long(1859. / 4104.)
+    c65 = long(-0.275)
+    a1 = long(25. / 216.)
+    a3 = long(1408. / 2565.)
+    a4 = long(2197. / 4104.)
+    a5 = long(-0.2)
+    b1 = 16. / 135.
+    b3 = 6656. / 12825.
+    b4 = 28561. / 56430.
+    b5 = -0.18
+    b6 = 2. / 55.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c31 * k1) + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        k5 = h * f(t + h, x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
+        k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
+        x4 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a5 * k5))
+        x = x + ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6))
+        t = a + (j * h)
+        er = abs(x - x4)
+        if adaptive == 1:
+            erstore.append(er)
+        print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The Bogacki Shampine method is a Runge Kutta method of order three with four stages with the First
+#Same As Last (FSAL) property, so that it uses approximately three function evaluations per step.
+#It has an embedded second-order method which can be used to implement adaptive step size.
+
+def runge_kutta_bogacki_shampine(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that b4 == c31 == 0
+    #using long format to increase accuracy of estimation.
+    c20 = long(0.5)
+    c21 = long(0.5)
+    c30 = long(0.75)
+    c32 = long(0.75)
+    c40 = long(1.)
+    c41 = long(2. / 9.)
+    c42 = long(1. / 3.)
+    c43 = long(4. / 9.)
+    a1 = long(2. / 9.)
+    a2 = long(1. / 3.)
+    a3 = long(4. / 9.)
+    b1 = 7. / 24.
+    b2 = 1. / 4.
+    b3 = 1. / 3.
+    b4 = 1. / 8
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        x3 = x + ((a1 * k1) + (a2 * k2) + (a3 * k3))
+        x = x + ((b1 * k1) + (b2 * k2) + (b3 * k3) + (b4 * k4))
+        t = a + (j * h)
+        er = abs(x - x3)
+        if adaptive == 1:
+            erstore.append(er)
+        print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The Dormand Prince method is another type of ODE solver in the Runge-Kutta family.
+#It uses six evaluations to calculate fourth and fifth order accurate solutions.
+#The Dormand Pricnce has seven stages, but it uses only six function evaluations per step because
+#it has the FSAL (First Same As Last) property: the last stage is evaluated at the same point as the first stage
+#of the next step. Dormand and Prince chose the coefficients of their method to minimize the error of the fifth-order
+#solution. This is the main difference with the Fehlberg method, which was constructed so that the fourth-order
+#solution has small error. For this reason, the Dormand Prince method is more suitable when the higher-order
+#solution is used to continue the integration.
+
+def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that a2 == a6 == b2 == b6 == c72 == 0.
+    #using long format to increase accuracy of estimation.
+    c20 = long(1. / 5.)
+    c21 = long(1. / 5.)
+    c30 = long(3. / 10.)
+    c31 = long(3. / 40.)
+    c32 = long(9. / 40.)
+    c40 = long(4. / 5.)
+    c41 = long(44. / 45.)
+    c42 = long(-56. / 15.)
+    c43 = long(32. / 9.)
+    c50 = long(8. / 9.)
+    c51 = long(19372. / 6561.)
+    c52 = long(-25360. / 2187.)
+    c53 = long(64448. / 6561.)
+    c54 = long(-212. / 729.)
+    c60 = long(1.)
+    c61 = long(9017. / 3168.)
+    c62 = long(-355. / 33.)
+    c63 = long(46732. / 5247.)
+    c64 = long(49. / 176.)
+    c65 = long(-5103. / 18656.)
+    c70 = long(1.)
+    c71 = long(35. / 384.)
+    c73 = long(500. / 1113.)
+    c74 = long(125. / 132.)
+    c75 = long(-2187. / 6784.)
+    c76 = long(11. / 84.)
+    a1 = long(35. / 384.)
+    a3 = long(500. / 1113.)
+    a4 = long(125. / 192.)
+    a5 = long(-2187. / 6784)
+    b1 = 5179. / 57600.
+    b3 = 7571. / 16695.
+    b4 = 393. / 640.
+    b5 = -92097. / 339200.
+    b6 = 187. / 2100.
+    b7 = 1. / 40.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c31 * k1) + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        k5 = h * f(t + (c50 * h), x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
+        k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
+        k7 = h * f(t + (c70 * h), x + (c71 * k1) + (c73 * k3) + (c74 * k4) + (c75 * k5) + (c76 * k6))
+        x5 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a5 * k5))
+        x = x + ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6) + (b7 * k7))
+        t = a + (j * h)
+        er = abs(x - x5)
+        if adaptive == 1:
+            erstore.append(er)
+        print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
 
 # test function given in book.
 def f(t, x):
@@ -2431,6 +2602,10 @@ print g(0., 2., 100)  #result is 0.9953087431727834.
 
 #so our RK4(f(t,x)) and g(t0,t2,n) evaluations differ by 0.0001352 at 2.
 #The g(t0,t2,n) function is a reasonably good approximation of our complicated f(t,x) function.
+
+
+
+
 
 
 #convert polar coordinates to Cartesian coordinates#
