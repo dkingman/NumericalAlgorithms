@@ -27,3 +27,4 @@ Other Topics:
 -Convert polar coordinates to Cartesian coordinates
 -Print a Fibonacci sequence
 -Jacobian Matrix Evaluation in R2 and R3
+-Wronskian Matrix Evaluation in R2
