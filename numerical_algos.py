@@ -2675,6 +2675,32 @@ print g(0., 2., 100)  #result is 0.9953087431727834.
 #so our RK4(f(t,x)) and g(t0,t2,n) evaluations differ by 0.0001352 at 2.
 #The g(t0,t2,n) function is a reasonably good approximation of our complicated f(t,x) function.
 
+#A slightly different Runge-Kutta 4 algorithm. 
+#here's my rk4 function, it seems to work well
+def rk4(yp, y, a, b, n):
+    h = (b - a) / float(n)
+    xlist = [a]
+    ylist = [y]
+    for i in range(1, n + 1):
+        k1 = h * yp(xlist[i-1], ylist[i-1])
+        k2 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k1)
+        k3 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k2)
+        k4 = h * yp(xlist[i-1] + h, ylist[i-1] + k3)
+        ylist.append(ylist[i-1] + (1. / 6.)*(k1 + 2. * (k2 + k3) + k4))
+        xlist.append(a + i * h)
+    return xlist, ylist
+    
+yp = lambda x, y: 2. + (y - x - 1) ** 2.
+y = 2.
+a = 1.
+b = 1.5625
+n = 72
+
+x, y = rk4(yp, y, a, b, n)
+
+plt.plot(x, y)
+
+
 
 
 #convert polar coordinates to Cartesian coordinates#
@@ -2791,26 +2817,33 @@ def hz3(x,y,z):
 
 print jacobian_eval_R3(fx3,fy3,fz3,hx3,gy3,gz3,hx3,hy3,hz3,1.,1.,1.)
 
-#here's my rk4 function, it seems to work well
-def rk4(yp, y, a, b, n):
-    h = (b - a) / float(n)
-    xlist = [a]
-    ylist = [y]
-    for i in range(1, n + 1):
-        k1 = h * yp(xlist[i-1], ylist[i-1])
-        k2 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k1)
-        k3 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k2)
-        k4 = h * yp(xlist[i-1] + h, ylist[i-1] + k3)
-        ylist.append(ylist[i-1] + (1. / 6.)*(k1 + 2. * (k2 + k3) + k4))
-        xlist.append(a + i * h)
-    return xlist, ylist
-    
-yp = lambda x, y: 2. + (y - x - 1) ** 2.
-y = 2.
-a = 1.
-b = 1.5625
-n = 72
+#The Wronskian at a given point#
+#Ideally, we would evaluate at a range of points. Future version may incorporate this.
 
-x, y = rk4(yp, y, a, b, n)
+#need to define f, f', g, g', and point (x,y).
+def wronskian_eval_R2(f,fprime,g,gprime,x,y): #wronskian for a system of two equations.
+    a = f(x,y)
+    b = fprime(x,y)
+    c = g(x,y)
+    d = gprime(x,y)
+    w = [[a,b],[c,d]]
+    if linalg.det(w) == 0:
+        print "linearly dependent"
+    else:
+        print "linearly independent"
+    return linalg.det(w)
 
-plt.plot(x, y)
+
+def f(x,y):
+    return x**2
+
+def fprime(x,y):
+    return 2*x*(y**3)
+
+def g(x,y):
+    return x**3
+
+def gprime(x,y):
+    return 3*(x**2)*y
+
+print wronskian_eval_R2(f,fprime,g,gprime, 1., 1.) #this is the Wronskian only at one point, so apply Abel's theorem.
