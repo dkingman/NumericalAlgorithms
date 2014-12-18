@@ -2440,7 +2440,8 @@ def runge_kutta_fehlberg(f, x, a, b, n, adaptive):
         er = abs(x - x4)
         if adaptive == 1:
             erstore.append(er)
-        print [j, t, x, er]
+        else:
+            print [j, t, x, er]
     if adaptive == 1:
         return erstore
 
@@ -2481,7 +2482,8 @@ def runge_kutta_bogacki_shampine(f, x, a, b, n, adaptive):
         er = abs(x - x3)
         if adaptive == 1:
             erstore.append(er)
-        print [j, t, x, er]
+        else:
+            print [j, t, x, er]
     if adaptive == 1:
         return erstore
 
@@ -2537,7 +2539,8 @@ def runge_kutta_cash_karp(f, x, a, b, n, adaptive):
         er = abs(x - x4)
         if adaptive == 1:
             erstore.append(er)
-        print [j, t, x, er]
+        else:
+            print [j, t, x, er]
     if adaptive == 1:
         return erstore
 
@@ -2607,11 +2610,73 @@ def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
         er = abs(x - x5)
         if adaptive == 1:
             erstore.append(er)
-        print [j, t, x, er]
+        else:
+            print [j, t, x, er]
     if adaptive == 1:
         return erstore
 
+#The error estimate 'er' calculated and stored in some of the above methods
+#can tell us when to adjust the step size to control for the single-step error.
+#This fact, together with the 5th order approximation, results in an adaptive procedure
+#that is very accurate. emin and emax are the lower and upper bounds on the allowable error estimate.
+#hmin and hmax are are bounds on the step size h.
+#eflag is an error flag that returns 0 or 1 depending on if there is a successful march from a to b or if max. n is reached.
+#method is a toggle to select between different Runge-Kutta methods, as follows.
 
+#1: Runge-Kutta-Fehlberg
+#2: Runge-Kutta Bogacki-Shampine
+#3: Runge-Kutta Cash-Karp
+#4: Runge-Kutta Dormand-Prince
+
+def runge_kutta_adaptive(f, x, a, b, n, emin, emax, hmin, hmax, method):
+    erstore = []
+    if method == 1:
+        erstore = runge_kutta_fehlberg(f, x, a, b, n, 1) #store error values for use in adaptive method.
+    if method == 2:
+        erstore = runge_kutta_bogacki_shampine(f, x, a, b, n, 1) #store error values for use in adaptive method.
+    if method == 3:
+        erstore = runge_kutta_cash_karp(f, x, a, b, n, 1) #store error values for use in adaptive method.
+    if method == 4:
+        erstore = array(runge_kutta_dormand_prince(f, x, a, b, n, 1)) #store error values for use in adaptive method.
+    h = (b - a) / n
+    t = a
+    eflag = 1
+    k = 0
+    sig = 0.5 * (10.0 ** -5.)
+    while k <= n:
+        #maybe add for loop here for erstore at the bottom of the function.
+        k = k + 1
+        if abs(h) < hmin:
+            h = copysign(hmin,(h)) #return h with sign(h)*hmin
+        if abs(h) > hmax:
+            h = copysign(hmax,(h)) #return h with sign(h)*hmax
+        d = abs(b - a)
+        if d <= abs(h):
+            eflag = 0
+            if d <= sig * max(abs(b), abs(a)):
+                break
+            h = copysign(d,(h)) #return h with sign(h)*d
+        xsave = x
+        tsave = t
+        if method == 1:
+            print runge_kutta_fehlberg(f, x, a, b, n, 0) #note: no need to return error values for printing results
+        if method == 2:
+            print runge_kutta_bogacki_shampine(f, x, a, b, n, 0)
+        if method == 3:
+            print runge_kutta_cash_karp(f, x, a, b, n, 0)
+        if method == 4:
+            print runge_kutta_dormand_prince(f, x, a, b, n, 0)
+        if eflag == 0:
+            break
+        for i in range(1, n + 1):
+            if i in erstore < emin:
+                h = 2. * h
+            if i in erstore > emax:
+                h = 0.5 * h
+                x = xsave
+                t = tsave
+                k = k - 1
+                
 # test function given in book.
 def f(t, x):
     return 2. + ((x - t - 1.) ** 2.)
@@ -2628,6 +2693,7 @@ print runge_kutta_fehlberg(f, 2., 1., 1.5625, 72, 0) #returns 3.21488255297631
 print runge_kutta_bogacki_shampine(f, 2., 1., 1.5625, 72, 0) #returns 3.1907582960278154
 print runge_kutta_cash_karp(f, 2., 1., 1.5625, 72, 0 #returns 3.192865860211696)
 print runge_kutta_dormand_prince(f, 2., 1., 1.5625, 72, 0) #returns 3.19079031694774
+print runge_kutta_adaptive(f, 2., 1., 1.5625, 72, 10 ** -8, 10 ** -5, 10 ** -6, 1.0, 4) #returns 3.19079031694774
 
 #tests using g(t,x):
 print runge_kutta_2(g, 0., 0., 10., 1000)
@@ -2637,6 +2703,7 @@ print runge_kutta_fehlberg(g, 0., 0., 10., 100000, 0) #returns 135.9326912001904
 print runge_kutta_bogacki_shampine(g, 0., 0., 10., 100000, 0) #returns 135.91374364421674
 print runge_kutta_cash_karp(g, 0., 0., 10., 100000, 0) #returns 135.91543072388197
 print runge_kutta_dormand_prince(g, 0., 0., 10., 100000, 0) #returns 135.91373784394202
+print runge_kutta_adaptive(g, 0., 0., 10., 1000, 10 ** -8, 10 ** -5, 10 ** -6, 1.0, 4) #returns 135.56713499140957
 
 def g(t, x):
     return -2. * t
