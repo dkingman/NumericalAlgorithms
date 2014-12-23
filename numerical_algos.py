@@ -2483,7 +2483,7 @@ def runge_kutta_bogacki_shampine(f, x, a, b, n, adaptive):
     b1 = 7. / 24.
     b2 = 1. / 4.
     b3 = 1. / 3.
-    b4 = 1. / 8
+    b4 = 1. / 8.
     for j in range(1, n + 1):
         k1 = h * f(t, x)
         k2 = h * f(t + (c20 * h), x + (c21 * k1))
@@ -2602,7 +2602,7 @@ def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
     a1 = long(35. / 384.)
     a3 = long(500. / 1113.)
     a4 = long(125. / 192.)
-    a5 = long(-2187. / 6784)
+    a5 = long(-2187. / 6784.)
     b1 = 5179. / 57600.
     b3 = 7571. / 16695.
     b4 = 393. / 640.
@@ -2644,11 +2644,11 @@ def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
 def runge_kutta_adaptive(f, x, a, b, n, emin, emax, hmin, hmax, method):
     erstore = []
     if method == 1:
-        erstore = runge_kutta_fehlberg(f, x, a, b, n, 1) #store error values for use in adaptive method.
+        erstore = array(runge_kutta_fehlberg(f, x, a, b, n, 1)) #store error values for use in adaptive method.
     if method == 2:
-        erstore = runge_kutta_bogacki_shampine(f, x, a, b, n, 1) #store error values for use in adaptive method.
+        erstore = array(runge_kutta_bogacki_shampine(f, x, a, b, n, 1)) #store error values for use in adaptive method.
     if method == 3:
-        erstore = runge_kutta_cash_karp(f, x, a, b, n, 1) #store error values for use in adaptive method.
+        erstore = array(runge_kutta_cash_karp(f, x, a, b, n, 1)) #store error values for use in adaptive method.
     if method == 4:
         erstore = array(runge_kutta_dormand_prince(f, x, a, b, n, 1)) #store error values for use in adaptive method.
     h = (b - a) / n
