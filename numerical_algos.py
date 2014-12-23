@@ -32,6 +32,20 @@ def point_distance_R3(x1, y1, z1, x2, y2, z2):
 print point_distance_R2(0., 1., 1., 0.) #Pythagorean Theorem tells us this is the correct result.
 print point_distance_R3(1., 2., 3., 3., 2., 1.) #correct according to Wolfram Alpha
 
+#calculate the hypotenuse of a triangle
+def hypot(x, y):
+    x = abs(x)
+    y = abs(y)
+    if x > y:
+        r = y / x
+        return x * sqrt(1 + r * r)
+    if y == 0:
+        return 0.
+    r = x / y
+    return y * sqrt(1 + r * r)
+
+print hypot(3., 4.) #returns 5
+
 #area of a triangle using points
 def tri_point_area(x1,x2,x3,y1,y2,y3):
     A = [[x1,y1,1.],[x2,y2,1.],[x3,y3,1.]] #put vector of x's, vector of y's, and vector of 1's as columns in 3x3 matrix.
@@ -2228,8 +2242,8 @@ def trapint(f,a,b,n):
     stepsize = (b - a) / float(n)
     output = 0.5 *(f(a) + f(b))
     for i in range(1, n):+
-    output += f(a + float(i) * stepsize)
-    output *= stepsize
+        output += f(a + float(i) * stepsize)
+        output *= stepsize
     return output
 
 
@@ -2283,15 +2297,14 @@ def two_pt_gauss(f,a,b,n):
         #print x1
         x2 = x0+(0.5*h)*(1+sqrt(1./3.))
         #print x2
-        sum = sum + ((f(x1)+f(x2))) #weights are 1.
+        sum += ((f(x1)+f(x2))) #weights are 1.
         #print sum
-    sum = sum*(0.5*h)
+    sum *= (0.5*h)
     return sum
 
 
 
 #Three point Gaussian Quadrature#
-
 def three_pt_gauss(f,a,b,n):
     h = (b-a)/n
     #print h
@@ -2305,9 +2318,9 @@ def three_pt_gauss(f,a,b,n):
         #print x2
         x3 = x0+(0.5*h)*(1+sqrt(3./5.))
         #print x3
-        sum = sum + (((5./9.)*f(x1))+((8./9.)*f(x2))+((5./9.)*f(x3))) #weights are 5/9, 8/9, and 5/9.
+        sum += (((5./9.)*f(x1))+((8./9.)*f(x2))+((5./9.)*f(x3))) #weights are 5/9, 8/9, and 5/9.
         #print sum
-    sum = sum*(0.5*h)
+    sum *= (0.5*h)
     return sum
 
 
