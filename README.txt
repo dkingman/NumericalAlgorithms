@@ -19,6 +19,7 @@ Main Topics:
 
 Other Topics:
 -Distance between two points
+-Calculate the hypotenuse of a triangle
 -Area of triangle (using points)
 -Wilkinson function
 -Calculation of Chebyshev nodes
