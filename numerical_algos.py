@@ -807,7 +807,7 @@ def createHilbert(n): #define a function for creating Hilbert matrices.
     H = zeros((n, n), order='F') #declare an empty array of nxn dimension.
     for j in range(n):
         for i in range(n):
-            H[i,j] = 1. / (i + j + 1) #formula for constructing matrix values.
+            H[i,j] = 1. / (i + j - 1) #formula for constructing matrix values.
     return H #return the matrix A
 
 H3 = createHilbert(3) #create 3x3 Hilbert matrix
