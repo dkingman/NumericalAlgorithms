@@ -186,25 +186,20 @@ def bisection_2(ap=1e-6, max_steps=50):
 
 bisection_2()
 
-def newton(f,f_prime,x,tolerance,precision,display,steps):
-    fx=f(x)
+def newton(f, f_prime, x, tolerance, precision, display, steps):
+    fx= f(x)
     for i in range(steps):
-        fp=f_prime(x)
-        if abs(fp) < precision:
-            display=0
+        if abs(f_prime(x)) < precision:
             print 'small derivative'
-            #return [steps,x,fx]
             break
-        d=fx/fp
-        x=x-d
+        d = fx / f_prime(x)
+        x = x - d
         fx = f(x)
-        if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
-                #print [steps,x,fx]
+        if display == 1:
+                print [i, x, fx]
         if abs(d) < tolerance:
             print 'convergence'
             break
-    return [steps, x, fx]
 
 
 def function(x):
@@ -232,28 +227,24 @@ def function2prime(x):
 print newton(function2,function2prime,2,1*e**-6,1*e**-6,1,25)
 
 def newtonmod(f,f_prime,x,tolerance,precision,display,steps):
-    fx=f(x)
+    fx = f(x)
     for i in range(steps):
-        fp=f_prime(x)
-        if abs(fp) < precision:
-            display=0
+        if abs(f_prime(x)) < precision:
             print 'small derivative'
-            #return [steps,x,fx]
             break
-        d=fx/fp
-        x=x-d
-        if abs(f(x-d)) >= abs(f(x)):
-            d=0.5*d
+        d = fx / f_prime(x)
+        x = x - d
+        if abs(f(x - d)) >= abs(f(x)):
+            d = 0.5 * d
         else:
-            d=d
+            d = d
         fx = f(x)
-        if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
+        if display == 1:
+                print [i, x, fx]
         #print [steps,x,fx]
         if abs(d) < tolerance:
             print 'convergence'
             break
-    return [steps, x, fx]
 
 
 
@@ -269,29 +260,20 @@ print newtonmod(testfn,testfnprime,1.2,1*e**-6,1*e**-3,1,25)
 
 #yay it works.
 
-def newtonaccel(f,f_prime,x,tolerance,precision,display,steps):
-    fx=f(x)
+def newtonaccel(f, f_prime, x, tolerance, precision, display, steps):
+    fx= f(x)
     for i in range(steps):
-        fp=f_prime(x)
-        if abs(fp) < precision:
-            display=0
+        if abs(f_prime(x)) < precision:
             print 'small derivative'
-            #return [steps,x,fx]
             break
-        d=fx/fp
-        x=x-(2*d)
-        #if abs(f(x-d)) >= abs(f(x)):
-         #   d=0.5*d
-        #else:
-         #   d=d
+        d = fx / f_prime(x)
+        x = x - (2*d)
         fx = f(x)
-        if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
-        #print [steps,x,fx]
+        if display == 1:
+                print [i, x, fx]
         if abs(d) < tolerance:
             print 'convergence'
             break
-    return [steps, x, fx]
 
 
 def doublerootfn(x):
@@ -358,16 +340,9 @@ def secant(f, a, b, precision, steps):
         d = d * fa
         if abs(d) < precision:
             print 'Convergence'
-            #print "" #so that when testing multiple functions the output is easier to read.
-            break
-        #else: #Do not need this.
-            #print 'Does Not Converge'
-            #print "" #so that when testing multiple functions the output is easier to read.
-            #break
+            print [n, a, fa]
         a = a - d
         fa = f(a)
-        print 'n=', n, ' a=', a, ' fa=', fa
-    return [n, a, fa]
 
 
 def secantfn(x):
