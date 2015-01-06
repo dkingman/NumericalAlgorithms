@@ -13,6 +13,7 @@ Main Topics:
 -First and Second derivatives
 -Trapezoid Method
 -Simpson's Method
+-Node transformations
 -Romberg Integration Algorithm (appl. of Richardson extrapolation)
 -Gaussian Quadrature (2 and 3 point integration)
 -Runge-Kutta Algorithms (orders 2, 3 and 4)
