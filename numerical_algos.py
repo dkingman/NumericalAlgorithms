@@ -987,9 +987,33 @@ def eval(x,y,p): #single real value. Function returns value of the interpolating
         t = t*(p-x[i])+a[i]
     return t #returns the value.
   
-  
-#chebyshev x-value calculation. 
+#Node Transformations.
+#Any arbitrary finite interval can be transformed to the interval [-1,1] using the first function provided below.
 
+#transforming points from [a,b] to [-1,1]
+def transform_1(array,a,b):
+    x = [] #empty matrix to store values
+    for i in range(len(array)):
+        x.append(((2. * array[i]) - b - a) / (b - a))
+    return x
+
+#This next function is simply the inverse of the first transform function, which takes nodes in an interval [a.b] and
+#transforms them to any arbitrary finite interval [a,b].
+
+#transforming points from [-1,1] to [a,b]
+def transform_2(array,a,b):
+    x = [] #empty matrix to store values
+    for i in range(len(array)):
+        x.append(((array[i] * (b - a)) + (b + a)) / 2.)
+    return x
+
+z = [-4., -3., -2., -1., 0., 1., 2., 3., 4.]
+z2 = transform_1(z, -4, 4)
+print z2
+
+print transform_2(z2, -4, 4)
+
+#chebyshev x-value calculation. 
 def chebyshevnodes(func,a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
     x = [] #empty matrix to store values.
     y = []
@@ -2089,10 +2113,11 @@ a = 0
 b = 5. * math.pi / 4.
 print simpson(f_4, a, b, 0, 5)
 
-
+#Open formulas are slightly better when only two or three points are used. When using more than three points,
+#closed formulas are far more accurate than the open formulas. Additionally, a high-order formula may produce larger
+#error than a low-order one. As a general rule, formulas employing more than eight points are almost never used.
 
 #open Newton-Cotes Rules
-
 def nc_midpoint(f,a,b,n):
     h = 0.5*(b-a) #midpoint
     x1 = a+h #we need to move one step away from a. 
