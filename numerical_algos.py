@@ -9,8 +9,10 @@ Created on Tue Jan 29 23:14:17 2013
 
 import math
 import copy
+import matplotlib.pyplot as plt
 from numarray import argmax
 from math import cos
+from math import tan
 from math import atan
 from math import sin
 from math import pi
@@ -18,6 +20,41 @@ from math import e
 from math import sqrt
 from numpy import array
 from numpy import zeros
+from numpy import linalg
+
+#distance between two points. Can easily extend to R^n. 
+def point_distance_R2(x1, y1, x2, y2):
+    return sqrt(((x2 - x1) ** 2.) + ((y2 - y1) ** 2.))
+
+def point_distance_R3(x1, y1, z1, x2, y2, z2):
+    return sqrt(((x2 - x1) ** 2.) + ((y2 - y1) ** 2.) + ((z2 - z1) ** 2.))
+
+print point_distance_R2(0., 1., 1., 0.) #Pythagorean Theorem tells us this is the correct result.
+print point_distance_R3(1., 2., 3., 3., 2., 1.) #correct according to Wolfram Alpha
+
+#calculate the hypotenuse of a triangle
+def hypot(x, y):
+    x = abs(x)
+    y = abs(y)
+    if x > y:
+        r = y / x
+        return x * sqrt(1 + r * r)
+    if y == 0:
+        return 0.
+    r = x / y
+    return y * sqrt(1 + r * r)
+
+print hypot(3., 4.) #returns 5
+
+#area of a triangle using points
+def tri_point_area(x1,x2,x3,y1,y2,y3):
+    A = [[x1,y1,1.],[x2,y2,1.],[x3,y3,1.]] #put vector of x's, vector of y's, and vector of 1's as columns in 3x3 matrix.
+    #print A
+    area = 0.5*abs(linalg.det(A))
+    return area
+
+print tri_point_area(-1.,0.,1.,0.,1.,0.)
+
 
 def eulersConstant():
     x = s = 1.0
@@ -149,25 +186,20 @@ def bisection_2(ap=1e-6, max_steps=50):
 
 bisection_2()
 
-def newton(f,f_prime,x,tolerance,precision,display,steps):
-    fx=f(x)
+def newton(f, f_prime, x, tolerance, precision, display, steps):
+    fx= f(x)
     for i in range(steps):
-        fp=f_prime(x)
-        if abs(fp) < precision:
-            display=0
+        if abs(f_prime(x)) < precision:
             print 'small derivative'
-            #return [steps,x,fx]
             break
-        d=fx/fp
-        x=x-d
+        d = fx / f_prime(x)
+        x = x - d
         fx = f(x)
-        if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
-                #print [steps,x,fx]
+        if display == 1:
+                print [i, x, fx]
         if abs(d) < tolerance:
             print 'convergence'
             break
-    return [steps, x, fx]
 
 
 def function(x):
@@ -195,28 +227,24 @@ def function2prime(x):
 print newton(function2,function2prime,2,1*e**-6,1*e**-6,1,25)
 
 def newtonmod(f,f_prime,x,tolerance,precision,display,steps):
-    fx=f(x)
+    fx = f(x)
     for i in range(steps):
-        fp=f_prime(x)
-        if abs(fp) < precision:
-            display=0
+        if abs(f_prime(x)) < precision:
             print 'small derivative'
-            #return [steps,x,fx]
             break
-        d=fx/fp
-        x=x-d
-        if abs(f(x-d)) >= abs(f(x)):
-            d=0.5*d
+        d = fx / f_prime(x)
+        x = x - d
+        if abs(f(x - d)) >= abs(f(x)):
+            d = 0.5 * d
         else:
-            d=d
+            d = d
         fx = f(x)
-        if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
+        if display == 1:
+                print [i, x, fx]
         #print [steps,x,fx]
         if abs(d) < tolerance:
             print 'convergence'
             break
-    return [steps, x, fx]
 
 
 
@@ -232,29 +260,20 @@ print newtonmod(testfn,testfnprime,1.2,1*e**-6,1*e**-3,1,25)
 
 #yay it works.
 
-def newtonaccel(f,f_prime,x,tolerance,precision,display,steps):
-    fx=f(x)
+def newtonaccel(f, f_prime, x, tolerance, precision, display, steps):
+    fx= f(x)
     for i in range(steps):
-        fp=f_prime(x)
-        if abs(fp) < precision:
-            display=0
+        if abs(f_prime(x)) < precision:
             print 'small derivative'
-            #return [steps,x,fx]
             break
-        d=fx/fp
-        x=x-(2*d)
-        #if abs(f(x-d)) >= abs(f(x)):
-         #   d=0.5*d
-        #else:
-         #   d=d
+        d = fx / f_prime(x)
+        x = x - (2*d)
         fx = f(x)
-        if display:
-                print "n = %i, x = %f, and xn=%f"% (i + 1, x, fx)
-        #print [steps,x,fx]
+        if display == 1:
+                print [i, x, fx]
         if abs(d) < tolerance:
             print 'convergence'
             break
-    return [steps, x, fx]
 
 
 def doublerootfn(x):
@@ -321,16 +340,9 @@ def secant(f, a, b, precision, steps):
         d = d * fa
         if abs(d) < precision:
             print 'Convergence'
-            #print "" #so that when testing multiple functions the output is easier to read.
-            break
-        #else: #Do not need this.
-            #print 'Does Not Converge'
-            #print "" #so that when testing multiple functions the output is easier to read.
-            #break
+            print [n, a, fa]
         a = a - d
         fa = f(a)
-        print 'n=', n, ' a=', a, ' fa=', fa
-    return [n, a, fa]
 
 
 def secantfn(x):
@@ -540,9 +552,7 @@ for x in xi_2:
     real = func_2(x)
     print "{: 1.12f}".format(real - approx)
 
-
-
-
+#######
 def createA(n): #function to create matrix A
     A = zeros((n,n), order='F') #declare an empty array of nxn dimension
     for i in range(n):
@@ -555,6 +565,19 @@ def createA(n): #function to create matrix A
 
 A = createA(25)
 #print A
+
+def transpose_matrix(A): #where A is a matrix
+    AT = []
+    for i in range(len(A[0])):
+        line = []
+        for j in range(len(A)):
+            line.append(A[j][i])
+        AT.append(line)
+    return AT #returns a transposed matrix.
+
+A = [[1,2,3],[4,5,6]]
+print transpose_matrix(A)
+
 
 def det(a):
     n = len(a)
@@ -759,7 +782,7 @@ def createHilbert(n): #define a function for creating Hilbert matrices.
     H = zeros((n, n), order='F') #declare an empty array of nxn dimension.
     for j in range(n):
         for i in range(n):
-            H[i,j] = 1. / (i + j + 1) #formula for constructing matrix values.
+            H[i,j] = 1. / (i + j - 1) #formula for constructing matrix values.
     return H #return the matrix A
 
 H3 = createHilbert(3) #create 3x3 Hilbert matrix
@@ -905,6 +928,41 @@ print X3
 #The computer is highly prone to error because the values it is computing are very small... i.e. the differences are tiny.
 #The error compounds as the size of the Hilbert matrix increases.
 
+#Cramer'srule for finding coefficients of linear systems.
+
+#We have the system Ax=b, where A is an nxn matrix and b is an 1xn matrix. There are several ways to solve the system,
+#but the algorithm below evaluates x1, x2, ..., xn using Cramer's Rule.
+
+def cramers_rule_R2(a1, a2, a3, a4, b1, b2):
+    A = [[a1, a2], [a3, a4]]
+    if linalg.det(A) == 0:
+        print "Cramer's rule does not apply."
+    else:
+        A1 = [[b1, a2], [b2, a4]]  #replace the first column with the matrix b.
+        A2 = [[a1, b1], [a3, b2]]  #replace the second column with the matrix b.
+        x1 = linalg.det(A1) / linalg.det(A)
+        x2 = linalg.det(A2) / linalg.det(A)
+        return [x1, x2]
+
+def cramers_rule_R3(a1, a2, a3, a4, a5, a6, a7, a8, a9, b1, b2, b3):
+    A = [[a1, a2, a3], [a4, a5, a6], [a7, a8, a9]]
+    if linalg.det(A) == 0:
+        print "Cramer's rule does not apply."
+    else:
+        A1 = [[b1, a2, a3], [b2, a5, a6], [b3, a8, a9]]  #replace the first column with the matrix b.
+        A2 = [[a1, b1, a3], [a4, b2, a6], [a7, b3, a9]]  #replace the second column with the matrix b.
+        A3 = [[a1, a2, b1], [a4, a5, b2], [a7, a8, b3]]  #replace the third column with the matrix b.
+        x1 = linalg.det(A1) / linalg.det(A)
+        x2 = linalg.det(A2) / linalg.det(A)
+        x3 = linalg.det(A3) / linalg.det(A)
+        return [x1, x2, x3]
+
+print cramers_rule_R2(7., -2., 3., 1., 3., 5.)
+print cramers_rule_R3(1., 0., 2., -3., 4., 6., -1., -2., 3., 6., 30., 8.)
+
+
+#Polynomial Interpolation
+
 #calculates coefficients for polynomial interpolation
 def coef(x,y):
     a = [] #need array to store values.
@@ -929,9 +987,33 @@ def eval(x,y,p): #single real value. Function returns value of the interpolating
         t = t*(p-x[i])+a[i]
     return t #returns the value.
   
-  
-#chebyshev x-value calculation. 
+#Node Transformations.
+#Any arbitrary finite interval can be transformed to the interval [-1,1] using the first function provided below.
 
+#transforming points from [a,b] to [-1,1]
+def transform_1(array,a,b):
+    x = [] #empty matrix to store values
+    for i in range(len(array)):
+        x.append(((2. * array[i]) - b - a) / (b - a))
+    return x
+
+#This next function is simply the inverse of the first transform function, which takes nodes in an interval [a.b] and
+#transforms them to any arbitrary finite interval [a,b].
+
+#transforming points from [-1,1] to [a,b]
+def transform_2(array,a,b):
+    x = [] #empty matrix to store values
+    for i in range(len(array)):
+        x.append(((array[i] * (b - a)) + (b + a)) / 2.)
+    return x
+
+z = [-4., -3., -2., -1., 0., 1., 2., 3., 4.]
+z2 = transform_1(z, -4, 4)
+print z2
+
+print transform_2(z2, -4, 4)
+
+#chebyshev x-value calculation. 
 def chebyshevnodes(func,a,b,n): #number of nodes defined by user as n, a=left most point and b=right most point.
     x = [] #empty matrix to store values.
     y = []
@@ -1925,7 +2007,7 @@ calc_low_highs(f_9, low_high)
 def trapezoid_uniform(f,a,b,n): #f denotes f(x), a=left most point, b=right most point, n=number of sub-intervals.
     h = (b-a)/n #sub-interval size
     sum = 0.5*(f(a)+f(b))
-    for i in range(n-1):
+    for i in range(1,n):
         x = a+float(i)*h
         sum = sum + f(x)
     sum = sum*h
@@ -1943,16 +2025,46 @@ def function3(x):
     return atan(x)
    
     
-print trapezoid_uniform(function1,0.,pi,100) #answer is 2, we have 1.99884870579.
-print trapezoid_uniform(function2,0.,1.,100) #answer is 1.7828, we have 1.70138380273.
-print trapezoid_uniform(function3,0.,1.,100) #answer is 0.438825, we have 0.431016675615.
+print trapezoid_uniform(function1,0.,pi,20000) #answer is 2, we have 1.99999999589
+print trapezoid_uniform(function2,0.,1.,20000) #answer is 1.7828, we have 1.71828182882
+print trapezoid_uniform(function3,0.,1.,20000) #answer is 0.438825, we have 0.438824573013
+
+#trapazoid method, while generally affective, does not estimate the area under f(x)=e^x well. This is due to the
+#exponentially increasing nature of the function. The higher the magnitude of the slope, the more error we can
+#expect from using the trapezoid method.
+
+#Gaussian probability integral
+def f1(x):
+    return e**-(x**2)
+
+def f1b(t):
+    return (1/t)*e**-(log(t))**2
+
+#sine integral
+def f2(x):
+    return sin(x)/x
+
+def f2b(t):
+    return sin(1/t)/t
+
+#Fresnel sine integral
+def f3(x):
+    return sin(x**2)
+
+def f3b(t):
+    return sin(tan(t)**2)/(cos(t)**2)
+
+print trapezoid_uniform(f1,0.,200.,20000) #0.896226925453
+print trapezoid_uniform(f1b,(10.**-10.),1.,20000) #returns 0.886176922744, which is close to the x-form.
+
+print trapezoid_uniform(f2,(10.**-10.),200.,20000) #returns 1.56842626819, the correct result is 1.57
+print trapezoid_uniform(f2b,(10.**-10.),200.,20000) #returns -24375299.9242
+
+print trapezoid_uniform(f3,0.,200.,20000) #returns 0.631141945821, which is close to the true result of 0.626657
+print trapezoid_uniform(f3b,0.,((0.5*pi)-(10.**-10.)),20000) #returns -3.84967571979e+15.
 
 
-
-
-
-
-
+#______________#
 
 def simpson(f, a, b, level, level_max, p=1e-5):
     level += 1
@@ -2001,10 +2113,11 @@ a = 0
 b = 5. * math.pi / 4.
 print simpson(f_4, a, b, 0, 5)
 
-
+#Open formulas are slightly better when only two or three points are used. When using more than three points,
+#closed formulas are far more accurate than the open formulas. Additionally, a high-order formula may produce larger
+#error than a low-order one. As a general rule, formulas employing more than eight points are almost never used.
 
 #open Newton-Cotes Rules
-
 def nc_midpoint(f,a,b,n):
     h = 0.5*(b-a) #midpoint
     x1 = a+h #we need to move one step away from a. 
@@ -2119,6 +2232,9 @@ def k(x):
 print romberg(k,0,1,6) #correct value is 0.66667.
 
 #k(x) is a bad function because the above algorithm can't handle estimation at the first endpoint, a=0.
+#The result of that is that we need a far greater n to approach the solution than with other functions.
+#increasing to n=20 allows us to approach the solution. This isn't ideal though... Increasing n even more
+#slows down the algorithm immensely and, subsequently, a very large matrix is needed to store the result.
 
 
 #trapezoid integration method
@@ -2126,8 +2242,8 @@ def trapint(f,a,b,n):
     stepsize = (b - a) / float(n)
     output = 0.5 *(f(a) + f(b))
     for i in range(1, n):+
-    output += f(a + float(i) * stepsize)
-    output *= stepsize
+        output += f(a + float(i) * stepsize)
+        output *= stepsize
     return output
 
 
@@ -2181,15 +2297,14 @@ def two_pt_gauss(f,a,b,n):
         #print x1
         x2 = x0+(0.5*h)*(1+sqrt(1./3.))
         #print x2
-        sum = sum + ((f(x1)+f(x2))) #weights are 1.
+        sum += ((f(x1)+f(x2))) #weights are 1.
         #print sum
-    sum = sum*(0.5*h)
+    sum *= (0.5*h)
     return sum
 
 
 
 #Three point Gaussian Quadrature#
-
 def three_pt_gauss(f,a,b,n):
     h = (b-a)/n
     #print h
@@ -2203,9 +2318,9 @@ def three_pt_gauss(f,a,b,n):
         #print x2
         x3 = x0+(0.5*h)*(1+sqrt(3./5.))
         #print x3
-        sum = sum + (((5./9.)*f(x1))+((8./9.)*f(x2))+((5./9.)*f(x3))) #weights are 5/9, 8/9, and 5/9.
+        sum += (((5./9.)*f(x1))+((8./9.)*f(x2))+((5./9.)*f(x3))) #weights are 5/9, 8/9, and 5/9.
         #print sum
-    sum = sum*(0.5*h)
+    sum *= (0.5*h)
     return sum
 
 
@@ -2218,3 +2333,597 @@ print three_pt_gauss(f,0.,1.,10) #result is 1.66666666667
 #You can see here that using Gaussian Quadrature feels like cheating, almost. With so little computation,
 #we can approximate the area under the curve (i.e. integrate) with a, compared to other methods, very high
 #amount of accuracy. Using n=10 and three_pt_gauss, we obtain the true result.
+
+
+#Runge-Kutta#
+
+#The Runge-Kutta method imitate the Taylor series method without requiring analytic differentiation of the
+#original differential equation. Therefore, the below algorithms will accept any function, interval, and given point
+#and will represent the solution to an ODE locally at the given point. This method works provided we now the
+#value exactly at some arbitrary t. The downside of these methods is that they have to evaluate the function f several times,
+#which can be very time consuming depending on the function.
+
+#f denotes the function, x denotes the initial point, a and b denote the beginning and end of the interval, n denotes number of iterations.
+
+#NOTE: if you wish to plot two functions, you must do so seperately.
+#Plot one function, terminate the function, then plot the other.
+
+# Runge-Kutta of order 2.
+def runge_kutta_2(f, x, a, b, n):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + h, x + k1)
+        x += 0.5 * (k1 + k2)
+        t = a + (j * h)
+        print [j, t, x]
+
+
+# Runge-Kutta method of order 4.
+def runge_kutta_4(f, x, a, b, n):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + 0.5 * h, x + 0.5 * k1)
+        k3 = h * f(t + 0.5 * h, x + 0.5 * k2)
+        k4 = h * f(t + h, x + k3)
+        x += ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
+        t = a + (j * h)
+        print [j, t, x]
+
+
+# Runge-Kutta method of order 4 that also plots.
+def runge_kutta_4_plot(f, x, a, b, n):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    jstore = []  # empty list to store j values. Not strictly necessary for plotting but may be useful.
+    tstore = []  # empty list to store t values
+    xstore = []  # empty list to store x values
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + 0.5 * h, x + 0.5 * k1)
+        k3 = h * f(t + 0.5 * h, x + 0.5 * k2)
+        k4 = h * f(t + h, x + k3)
+        x += ((1. / 6.) * (k1 + 2. * k2 + 2. * k3 + k4))
+        t = a + (j * h)
+        print [j, t, x]
+        jstore.append(j)
+        tstore.append(t)
+        xstore.append(x)
+    plt.plot(tstore, xstore)
+    plt.xlabel('t')
+    plt.ylabel('x')
+    plt.show()
+
+#For the Runge-Method of order 5 given below,
+#the difference between the values of x(t+h) obtained from the 4th and 5th order procedures is an estimate of the
+#local truncation error in the 4th order procedure. Therefore, evaluations give a 5th order approximation,
+#together with an error estimate. This method is called the Runge-Kutta-Fehlberg method
+
+#adaptive (enter 1 for yes, 0 for no) is a toggle to store error values needed in the adaptive Runge-Kutta method.
+
+# Runge-Kutta method of order 5.
+def runge_kutta_fehlberg(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that a2 == b2 == 0.
+    #using long format to increase accuracy of estimation.
+    c20 = long(0.25)
+    c21 = long(0.25)
+    c30 = long(0.375)
+    c31 = long(0.09375)
+    c32 = long(0.28125)
+    c40 = long(12. / 13.)
+    c41 = long(1932. / 2197.)
+    c42 = long(7200. / 2197.)
+    c43 = long(7296. / 2197.)
+    c51 = long(439. / 216.)
+    c52 = long(-8.)
+    c53 = long(3680. / 513.)
+    c54 = long(-845. / 4104.)
+    c60 = long(0.5)
+    c61 = long(-8. / 27.)
+    c62 = long(2.)
+    c63 = long(-3544. / 2565.)
+    c64 = long(1859. / 4104.)
+    c65 = long(-0.275)
+    a1 = long(25. / 216.)
+    a3 = long(1408. / 2565.)
+    a4 = long(2197. / 4104.)
+    a5 = long(-0.2)
+    b1 = 16. / 135.
+    b3 = 6656. / 12825.
+    b4 = 28561. / 56430.
+    b5 = -0.18
+    b6 = 2. / 55.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c31 * k1) + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        k5 = h * f(t + h, x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
+        k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
+        x4 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a5 * k5))
+        x += ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6))
+        t = a + (j * h)
+        er = abs(x - x4)
+        if adaptive == 1:
+            erstore.append(er)
+        else:
+            print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The Bogacki Shampine method is a Runge Kutta method of order three with four stages with the First
+#Same As Last (FSAL) property, so that it uses approximately three function evaluations per step.
+#It has an embedded second-order method which can be used to implement adaptive step size.
+
+def runge_kutta_bogacki_shampine(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that b4 == c31 == 0
+    #using long format to increase accuracy of estimation.
+    c20 = long(0.5)
+    c21 = long(0.5)
+    c30 = long(0.75)
+    c32 = long(0.75)
+    c40 = long(1.)
+    c41 = long(2. / 9.)
+    c42 = long(1. / 3.)
+    c43 = long(4. / 9.)
+    a1 = long(2. / 9.)
+    a2 = long(1. / 3.)
+    a3 = long(4. / 9.)
+    b1 = 7. / 24.
+    b2 = 1. / 4.
+    b3 = 1. / 3.
+    b4 = 1. / 8.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        x3 = x + ((a1 * k1) + (a2 * k2) + (a3 * k3))
+        x += ((b1 * k1) + (b2 * k2) + (b3 * k3) + (b4 * k4))
+        t = a + (j * h)
+        er = abs(x - x3)
+        if adaptive == 1:
+            erstore.append(er)
+        else:
+            print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The Cash-Karp Runge-Kutta method uses six function evaluations to calculate fourth and fifth order accurate solutions.
+#The difference between these solutions is then taken to be the error of the fourth order solution. 
+
+def runge_kutta_cash_karp(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that a2 == a5 == b2 == 0..
+    #using long format to increase accuracy of estimation.
+    c20 = long(1. / 5.)
+    c21 = long(1. / 5.)
+    c30 = long(3./ 10.)
+    c31 = long(3./ 40.)
+    c32 = long(9./ 40.)
+    c40 = long(3. / 5.)
+    c41 = long(3. / 10.)
+    c42 = long(-9. / 10.)
+    c43 = long(6. / 5.)
+    c50 = long(1.)
+    c51 = long(-11. / 54.)
+    c52 = long(5. / 2.)
+    c53 = long(-70. / 27.)
+    c54 = long(35. / 27.)
+    c60 = long(7. / 8.)
+    c61 = long(1631. / 55296.)
+    c62 = long(175. / 512.)
+    c63 = long(575. / 13824.)
+    c64 = long(44275. / 110592.)
+    c65 = long(253. / 2096.)
+    a1 = long(37. / 378.)
+    a3 = long(250. / 621.)
+    a4 = long(125. / 594.)
+    a6 = long(512. / 1771.)
+    b1 = 2825. / 27648.
+    b3 = 18575. / 48384.
+    b4 = 13525. / 55296.
+    b5 = 277. / 14336.
+    b6 = 1. / 4.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c31 * k1) + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        k5 = h * f(t + (c50 * h), x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
+        k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
+        x4 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a6 * k6))
+        x += (b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6)
+        t = a + (j * h)
+        er = abs(x - x4)
+        if adaptive == 1:
+            erstore.append(er)
+        else:
+            print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The Dormand Prince method is another type of ODE solver in the Runge-Kutta family.
+#It uses six evaluations to calculate fourth and fifth order accurate solutions.
+#The Dormand Pricnce has seven stages, but it uses only six function evaluations per step because
+#it has the FSAL (First Same As Last) property: the last stage is evaluated at the same point as the first stage
+#of the next step. Dormand and Prince chose the coefficients of their method to minimize the error of the fifth-order
+#solution. This is the main difference with the Fehlberg method, which was constructed so that the fourth-order
+#solution has small error. For this reason, the Dormand Prince method is more suitable when the higher-order
+#solution is used to continue the integration.
+
+def runge_kutta_dormand_prince(f, x, a, b, n, adaptive):
+    h = (b - a) / n  # step size
+    t = a  # sets the initial t as the left-most point of the interval, a.
+    if adaptive == 1:
+        erstore = [] #need a place to store error values for adaptive Runge-Kutta.
+    #note that a2 == a6 == b2 == b6 == c72 == 0.
+    #using long format to increase accuracy of estimation.
+    c20 = long(1. / 5.)
+    c21 = long(1. / 5.)
+    c30 = long(3. / 10.)
+    c31 = long(3. / 40.)
+    c32 = long(9. / 40.)
+    c40 = long(4. / 5.)
+    c41 = long(44. / 45.)
+    c42 = long(-56. / 15.)
+    c43 = long(32. / 9.)
+    c50 = long(8. / 9.)
+    c51 = long(19372. / 6561.)
+    c52 = long(-25360. / 2187.)
+    c53 = long(64448. / 6561.)
+    c54 = long(-212. / 729.)
+    c60 = long(1.)
+    c61 = long(9017. / 3168.)
+    c62 = long(-355. / 33.)
+    c63 = long(46732. / 5247.)
+    c64 = long(49. / 176.)
+    c65 = long(-5103. / 18656.)
+    c70 = long(1.)
+    c71 = long(35. / 384.)
+    c73 = long(500. / 1113.)
+    c74 = long(125. / 132.)
+    c75 = long(-2187. / 6784.)
+    c76 = long(11. / 84.)
+    a1 = long(35. / 384.)
+    a3 = long(500. / 1113.)
+    a4 = long(125. / 192.)
+    a5 = long(-2187. / 6784.)
+    b1 = 5179. / 57600.
+    b3 = 7571. / 16695.
+    b4 = 393. / 640.
+    b5 = -92097. / 339200.
+    b6 = 187. / 2100.
+    b7 = 1. / 40.
+    for j in range(1, n + 1):
+        k1 = h * f(t, x)
+        k2 = h * f(t + (c20 * h), x + (c21 * k1))
+        k3 = h * f(t + (c30 * h), x + (c31 * k1) + (c32 * k2))
+        k4 = h * f(t + (c40 * h), x + (c41 * k1) + (c42 * k2) + (c43 * k3))
+        k5 = h * f(t + (c50 * h), x + (c51 * k1) + (c52 * k2) + (c53 * k3) + (c54 * k4))
+        k6 = h * f(t + (c60 * h), x + (c61 * k1) + (c62 * k2) + (c63 * k3) + (c64 * k4) + (c65 * k5))
+        k7 = h * f(t + (c70 * h), x + (c71 * k1) + (c73 * k3) + (c74 * k4) + (c75 * k5) + (c76 * k6))
+        x5 = x + ((a1 * k1) + (a3 * k3) + (a4 * k4) + (a5 * k5))
+        x += ((b1 * k1) + (b3 * k3) + (b4 * k4) + (b5 * k5) + (b6 * k6) + (b7 * k7))
+        t = a + (j * h)
+        er = abs(x - x5)
+        if adaptive == 1:
+            erstore.append(er)
+        else:
+            print [j, t, x, er]
+    if adaptive == 1:
+        return erstore
+
+#The error estimate 'er' calculated and stored in some of the above methods
+#can tell us when to adjust the step size to control for the single-step error.
+#This fact, together with the 5th order approximation, results in an adaptive procedure
+#that is very accurate. emin and emax are the lower and upper bounds on the allowable error estimate.
+#hmin and hmax are are bounds on the step size h.
+#eflag is an error flag that returns 0 or 1 depending on if there is a successful march from a to b or if max. n is reached.
+#method is a toggle to select between different Runge-Kutta methods, as follows.
+
+#1: Runge-Kutta-Fehlberg
+#2: Runge-Kutta Bogacki-Shampine
+#3: Runge-Kutta Cash-Karp
+#4: Runge-Kutta Dormand-Prince
+
+def runge_kutta_adaptive(f, x, a, b, n, emin, emax, hmin, hmax, method):
+    erstore = []
+    if method == 1:
+        erstore = array(runge_kutta_fehlberg(f, x, a, b, n, 1)) #store error values for use in adaptive method.
+    if method == 2:
+        erstore = array(runge_kutta_bogacki_shampine(f, x, a, b, n, 1)) #store error values for use in adaptive method.
+    if method == 3:
+        erstore = array(runge_kutta_cash_karp(f, x, a, b, n, 1)) #store error values for use in adaptive method.
+    if method == 4:
+        erstore = array(runge_kutta_dormand_prince(f, x, a, b, n, 1)) #store error values for use in adaptive method.
+    h = (b - a) / n
+    t = a
+    eflag = 1
+    k = 0
+    sig = 0.5 * (10.0 ** -5.)
+    while k <= n:
+        #maybe add for loop here for erstore at the bottom of the function.
+        k = k + 1
+        if abs(h) < hmin:
+            h = copysign(hmin,(h)) #return h with sign(h)*hmin
+        if abs(h) > hmax:
+            h = copysign(hmax,(h)) #return h with sign(h)*hmax
+        d = abs(b - a)
+        if d <= abs(h):
+            eflag = 0
+            if d <= sig * max(abs(b), abs(a)):
+                break
+            h = copysign(d,(h)) #return h with sign(h)*d
+        xsave = x
+        tsave = t
+        if method == 1:
+            print runge_kutta_fehlberg(f, x, a, b, n, 0) #note: no need to return error values for printing results
+        if method == 2:
+            print runge_kutta_bogacki_shampine(f, x, a, b, n, 0)
+        if method == 3:
+            print runge_kutta_cash_karp(f, x, a, b, n, 0)
+        if method == 4:
+            print runge_kutta_dormand_prince(f, x, a, b, n, 0)
+        if eflag == 0:
+            break
+        for i in range(1, n + 1):
+            if i in erstore < emin:
+                h = 2. * h
+            if i in erstore > emax:
+                h = 0.5 * h
+                x = xsave
+                t = tsave
+                k = k - 1
+                
+# test function given in book.
+def f(t, x):
+    return 2. + ((x - t - 1.) ** 2.)
+
+#another test function
+def g(t,x):
+    return 3. + (5 * sin(t)) + (0.2 * x)
+
+#tests using f(t,x):
+print runge_kutta_2(f, 2., 1., 1.5625, 72)
+print runge_kutta_4(f, 2., 1., 1.5625, 72) #returns 3.192937673837072
+print runge_kutta_4_plot(f, 2., 1., 1.5625, 72) #same as above
+print runge_kutta_fehlberg(f, 2., 1., 1.5625, 72, 0) #returns 3.21488255297631
+print runge_kutta_bogacki_shampine(f, 2., 1., 1.5625, 72, 0) #returns 3.1907582960278154
+print runge_kutta_cash_karp(f, 2., 1., 1.5625, 72, 0 #returns 3.192865860211696)
+print runge_kutta_dormand_prince(f, 2., 1., 1.5625, 72, 0) #returns 3.19079031694774
+print runge_kutta_adaptive(f, 2., 1., 1.5625, 72, 10 ** -8, 10 ** -5, 10 ** -6, 1.0, 4) #returns 3.19079031694774
+
+#tests using g(t,x):
+print runge_kutta_2(g, 0., 0., 10., 1000)
+print runge_kutta_4(g, 0., 0., 10., 1000) #returns 135.91724460992168.
+print runge_kutta_4_plot(g, 0., 0., 10., 1000) #same as above
+print runge_kutta_fehlberg(g, 0., 0., 10., 100000, 0) #returns 135.93269120019045.
+print runge_kutta_bogacki_shampine(g, 0., 0., 10., 100000, 0) #returns 135.91374364421674
+print runge_kutta_cash_karp(g, 0., 0., 10., 100000, 0) #returns 135.91543072388197
+print runge_kutta_dormand_prince(g, 0., 0., 10., 100000, 0) #returns 135.91373784394202
+print runge_kutta_adaptive(g, 0., 0., 10., 1000, 10 ** -8, 10 ** -5, 10 ** -6, 1.0, 4) #returns 135.56713499140957
+
+def g(t, x):
+    return -2. * t
+
+#print runge_kutta_4(g,1.,0.,e,100) #we obtain -6.3890560989306495, correct result is = -6.3890560989
+print runge_kutta_4_plot(g, 1., 0., e, 100)
+
+def f(t, x):  # the function sin(t)/t is not defined at t==0, so we must specify a value at t==0.
+    if t == 0:
+        return 1.
+    else:
+        return sin(t) / t
+
+print runge_kutta_4(f, 0., 0., 1., 100)  #(1-0)/100 = 0.01 so step size is as the problem specifies. Result = 0.9460830703677978. Correct result is 0.9460830703.
+
+def f(t, x):
+    return (2. / sqrt(pi)) * (e ** (-t ** 2.))
+
+# let's approximate this by g(t0, t2, n) and see how close it is to our RK4 approximation.
+
+def g(t0, t2, n):
+    h = (t2 - t0) / n
+    for j in range(1, n + 1):
+        t = t0 + (j * h)
+        a = 0.3084284
+        b = -0.0849713
+        c = 0.6627698
+        y = (1. + (0.47047 * t)) ** (-1.)
+        x = 1. - ((a * y) + (b * (y ** 2.)) + (c * (y ** 3.))) * ((2. / sqrt(pi)) * (e ** (-t ** 2.)))
+        print [j, t, x]
+
+
+print runge_kutta_4(f, 0., 0., 2., 100)  #result is 0.9953222649730256
+print g(0., 2., 100)  #result is 0.9953087431727834.
+
+#so our RK4(f(t,x)) and g(t0,t2,n) evaluations differ by 0.0001352 at 2.
+#The g(t0,t2,n) function is a reasonably good approximation of our complicated f(t,x) function.
+
+#A slightly different Runge-Kutta 4 algorithm. 
+#here's my rk4 function, it seems to work well
+def rk4(yp, y, a, b, n):
+    h = (b - a) / float(n)
+    xlist = [a]
+    ylist = [y]
+    for i in range(1, n + 1):
+        k1 = h * yp(xlist[i-1], ylist[i-1])
+        k2 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k1)
+        k3 = h * yp(xlist[i-1] + .5*h, ylist[i-1] + .5*k2)
+        k4 = h * yp(xlist[i-1] + h, ylist[i-1] + k3)
+        ylist.append(ylist[i-1] + (1. / 6.)*(k1 + 2. * (k2 + k3) + k4))
+        xlist.append(a + i * h)
+    return xlist, ylist
+    
+yp = lambda x, y: 2. + (y - x - 1) ** 2.
+y = 2.
+a = 1.
+b = 1.5625
+n = 72
+
+x, y = rk4(yp, y, a, b, n)
+
+plt.plot(x, y)
+
+
+
+
+#convert polar coordinates to Cartesian coordinates#
+
+# Ask the user for the values of r and theta
+r = float(input("Enter r: "))
+d = float(input("Enter theta in degrees: "))
+
+# Convert the angle to radians
+theta = d*pi/180
+
+# Calculate the equivalent Cartesian coordinates
+x = r*cos(theta)
+y = r*sin(theta)
+
+# Print out the results
+print("x = ",x,", y = ",y)
+
+
+#Print a Fibonacci sequence#
+f1,f2 = 1,1
+while f2<1000:
+    print(f2)
+    f1,f2 = f2,f1+f2
+
+
+#Jacobian Matrix Evaluation#
+
+#given two (or three) functions with respect to x and y (and z), calculates the determinant of the Jacobian matrix at a given point (xi,yi).
+#useful in characterizing local behavior of nonlinear system about an equilibrium point, i.e. linearization.
+
+#fx,fy,gx,gy are functions f and g with respect to x and y
+#xi,yi are points of which to evaluate the Jacobian
+
+def jacobian_eval_R2(fx,fy,gx,gy,xi,yi):
+    a = fx(xi,yi)
+    b = fy(xi,yi)
+    c = gx(xi,yi)
+    d = gy(xi,yi)
+    Jcomplete = [[a,b],[c,d]]
+    return linalg.det(Jcomplete)
+
+def jacobian_eval_R3(fx,fy,fz,gx,gy,gz,hx,hy,hz,xi,yi,zi):
+    a = fx(xi,yi,zi)
+    b = fy(xi,yi,zi)
+    c = fz(xi,yi,zi)
+    d = gx(xi,yi,zi)
+    e = gy(xi,yi,zi)
+    f = gz(xi,yi,zi)
+    g = hx(xi,yi,zi)
+    h = hy(xi,yi,zi)
+    i = hz(xi,yi,zi)
+    Jcomplete = [[a,b,c],[d,e,f],[g,h,i]]
+    return linalg.det(Jcomplete)
+
+#test functions for R2
+def f(x,y):
+    return 2*x*(y**3)
+
+def g(x,y):
+    return y*(x**2)
+
+def fx(x,y):
+    return 2*(y**3)
+
+def fy(x,y):
+    return 6*x*(y**2)
+
+def gx(x,y):
+    return 2*x*y
+
+def gy(x,y):
+    return x**2
+
+print jacobian_eval_R2(fx,fy,gx,gy,1.,1.)
+
+
+#test functions for R3
+def f3(x,y,z):
+    return 2*x*(y**3)*z
+
+def g3(x,y,z):
+    return y*(x**2)*(z**4)
+
+def h3(x,y,z):
+    return (y**4)*(z**3)
+
+def fx3(x,y,z):
+    return 2*(y**3)*z
+
+def fy3(x,y,z):
+    return 6*x*(y**2)*z
+
+def fz3(x,y,z):
+    return 2*x*(y**3)
+
+def gx3(x,y,z):
+    return 2*x*y*(z**4)
+
+def gy3(x,y,z):
+    return x**2*(z**4)
+
+def gz3(x,y,z):
+    return 4*(z**3)*y*(x**2)
+
+def hx3(x,y,z):
+    return 0
+
+def hy3(x,y,z):
+    return 4*(y**3)*(z**3)
+
+def hz3(x,y,z):
+    return 3*(z**2)*(y**4)
+
+print jacobian_eval_R3(fx3,fy3,fz3,hx3,gy3,gz3,hx3,hy3,hz3,1.,1.,1.)
+
+#The Wronskian at a given point#
+#Ideally, we would evaluate at a range of points. Future version may incorporate this.
+
+#need to define f, f', g, g', and point (x,y).
+def wronskian_eval_R2(f,fprime,g,gprime,x,y): #wronskian for a system of two equations.
+    a = f(x,y)
+    b = fprime(x,y)
+    c = g(x,y)
+    d = gprime(x,y)
+    w = [[a,b],[c,d]]
+    if linalg.det(w) == 0:
+        print "linearly dependent"
+    else:
+        print "linearly independent"
+    return linalg.det(w)
+
+
+def f(x,y):
+    return x**2
+
+def fprime(x,y):
+    return 2*x*(y**3)
+
+def g(x,y):
+    return x**3
+
+def gprime(x,y):
+    return 3*(x**2)*y
+
+print wronskian_eval_R2(f,fprime,g,gprime, 1., 1.) #this is the Wronskian only at one point, so apply Abel's theorem.
